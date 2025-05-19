@@ -1,5 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
+import { prisma } from "./database/src/cilent"
+
 
 dotenv.config();
 const app = express();
@@ -10,6 +12,20 @@ app.get("/", (req, res) => {
   console.log("Res sent");
 })
 
+app.post("/test", async (req, res) => {
+  try {
+    const created = await prisma.test.create({
+      data: {
+        name: "test"
+      }
+    })
+
+    res.status(201).json({ created })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error)
+  }
+})
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
