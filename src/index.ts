@@ -4,7 +4,6 @@ import { prisma } from "./database/src/cilent"
 import bodyParser from 'body-parser';
 import cookieParser from "cookie-parser";
 
-import testRoute from "./controllers/testzod/test.route"
 import authRoute from "./controllers/auth/auth.route"
 import { JwtUtils } from "./controllers/auth/auth.utils";
 import ValidateAuth from "./controllers/auth/auth.validator";
@@ -20,9 +19,8 @@ app.use(cookieParser());
 const router = Router();
 app.use(router);
 
-router.use("/auth", authRoute)
+router.use("/auth", authRoute);
 router.use(ValidateAuth.jwtProtect);
-router.use("/test", testRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
