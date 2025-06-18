@@ -1,0 +1,10 @@
+
+services:
+  backend:
+    build: .
+    container_name: movie-review-backend
+    ports:
+      - 3001:3001
+    volumes:
+      - .:/app
+      - /app/node_modules
