@@ -8,7 +8,7 @@ export const JwtUtils = {
   signAccessToken: (payload: object) => {
     return jwt.sign(payload, JWT_ACCESS_SECRET, {
       algorithm: "HS256",
-      expiresIn: '5m'
+      expiresIn: '1d'
     })
   },
 

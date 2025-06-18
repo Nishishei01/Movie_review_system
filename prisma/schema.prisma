@@ -51,7 +51,7 @@ model Movie {
   movieImage String
   overview  String
   genreIDs Int[]
-  imdbId   String @unique
+  imdbID   String @unique
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
