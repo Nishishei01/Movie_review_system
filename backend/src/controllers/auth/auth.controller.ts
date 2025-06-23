@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { prisma } from "../../database/src/cilent"
 import { ValidateLogin, ValidateRegister } from "./auth.validator";
 import bcrypt from 'bcrypt'
-import { JwtUtils } from "../auth/auth.utils" 
+import { JwtUtils } from "./auth.utils" 
 import jwt, { JwtPayload } from "jsonwebtoken"
 
 export default {
