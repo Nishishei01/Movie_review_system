@@ -19,6 +19,12 @@ export default {
           password: hashedPassword,
           firstName,
           lastName
+        },
+        select: {
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
         }
       })
 
@@ -37,7 +43,7 @@ export default {
           username: username
         }
       })
-
+      
       if (!checkUser) {
         res.status(401).json({ message: "Invalid username or password" });
         return
@@ -48,7 +54,10 @@ export default {
         res.status(401).json({ message: 'Invalid username or password' })
         return
       }
-      const payload = checkUser
+      const payload = {
+        id: checkUser.id,
+        username: checkUser.username,
+      }
 
       const accessToken = JwtUtils.signAccessToken(payload)
       const refreshToken = JwtUtils.signRefreshToken(payload)
@@ -57,10 +66,11 @@ export default {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
+      path: "/auth/refresh",
       maxAge: 7 * 24 * 60 * 60 * 1000
       })
 
-      res.status(201).json({ accessToken })
+      res.status(200).json({ accessToken })
 
     } catch (error) {
       next(error)
@@ -72,6 +82,7 @@ export default {
 
       if (!token) {
         res.status(401).json({ message: "Refresh Token missing or expired"})
+        return
       }
 
       const decoded = JwtUtils.verifyRefreshToken(token) as jwt.JwtPayload;
