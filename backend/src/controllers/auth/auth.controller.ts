@@ -64,9 +64,10 @@ export default {
 
       res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/auth/refresh",
+      secure: false, //ถ้าเป็นhttpsค่อยเปิด
+      sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+      // path: "/auth/refresh",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000
       })
 
@@ -106,6 +107,21 @@ export default {
     } catch (error) {
       next(error)
     }
-  }
+  },
+   logout: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false, //ถ้าเป็นhttpsค่อยเปิด
+        sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+        // path: "/auth/refresh",
+        path: "/",
+      })
+
+      res.status(200).json({ message: 'Logged out'})
+    } catch (error) {
+      next(error)
+    }
+   }
 
 }

@@ -1,11 +1,44 @@
+'use client'
+
 import Image from "next/image";
+import Link from "next/link";
+import { useForm } from "react-hook-form"
+import { AuthProps } from "@/types";
+import { authApi } from "@/apis/auth";
+import { useRouter } from 'next/navigation'
 
 export function LoginLayout() {
+
+  const { 
+    register, 
+    handleSubmit, 
+    formState: {errors}
+  } = useForm<AuthProps.LoginType>({
+    defaultValues: {
+      username: '',
+      password: ''
+    }
+  });
+
+  const router = useRouter()
+
+  console.log(errors);
+
+  async function onSubmit(data: AuthProps.LoginType) {
+    try {
+      const res = await authApi.login(data);
+      localStorage.setItem("accessToken", JSON.stringify({ state: { accessToken: res.data.accessToken } }));
+      router.push('/')
+    } catch (error) {
+      console.error("Login Failed: ", error)
+    }
+  }
+
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="grid grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto">
         {/* Left-side */}
-        <div className="bg-green-50 relative h-full">
+        <div className="relative h-full">
           <Image
             src="/images/felipe-bustillo-4VDRCoNuvE0-unsplash.jpg"
             alt="login-image"
@@ -15,64 +48,49 @@ export function LoginLayout() {
         </div>
 
         {/* Right-side */}
-        <div className="flex items-center justify-center">
-          <div className="w-full m-20">
+        <div className="flex items-center justify-center p-12">
+          <div className="w-full">
 
-            <div className="text-center font-bold text-5xl mb-15">
-              <h1>Sign in to Account</h1>
+            <div className="text-center font-bold text-4xl mb-10">
+              <h1> <span className="text-purple-700">Sign in</span> to Account</h1>
             </div>
 
-            <form name="login" className="flex flex-col gap-10 text-3xl">
+            <form onSubmit={handleSubmit(onSubmit)} name="login" className="flex flex-col gap-6">
               <div>
-                <label htmlFor="email" className="block mb-5">Email</label>
+                <label htmlFor="uesrname" className="block mb-2 text-base font-medium text-gray-700">Username</label>
                 <input 
                   type="text"
-                  name="email"
-                  className="w-full shadow-xs shadow-purple-500/50 focus:shadow-lg focus:shadow-purple-500/50 focus:outline-none rounded-[5px] p-[15px] text-lg"
-                  placeholder="Type your email"
+                  {...register('username', { required: 'This is required.', minLength: { value: 3, message: 'Min length is 3'} })}
+                  className="w-full shadow-xs shadow-purple-500/50 focus:shadow-lg focus:shadow-purple-500/50 focus:outline-none rounded-md p-3 text-base"
+                  placeholder="Type your username"
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block mb-5">Password</label>
+                <label htmlFor="password" className="block mb-2 text-base font-medium text-gray-700">Password</label>
                 <input 
                   type="password"
-                  name="password"
-                  className="w-full shadow-xs shadow-purple-500/50 focus:shadow-lg focus:shadow-purple-500/50 focus:outline-none rounded-[5px] p-[15px] text-lg"
+                  {...register('password', { required: true })}
+                  className="w-full shadow-xs shadow-purple-500/50 focus:shadow-lg focus:shadow-purple-500/50 focus:outline-none rounded-md p-3 text-base"
                   placeholder="Type your password"
                 />
               </div>
               <div className="text-center mt-10">
                 <button
-                  type="button"
+                  type="submit"
                   className="bg-purple-700 rounded-xl text-white text-shadow-lg w-50 h-full p-3 hover:bg-purple-900 hover:shadow-lg hover:shadow-yellow-200/50 "
                 >
                   Sign In
                 </button>
               </div>
             </form>
-            {/* <form name="register">
-         <div>
-           Email  <input type="text" name="email" />
-         </div>
-         <div>
-           Username  <input type="text" name="username" />
-         </div>
-         <div>
-           FirstName  <input type="text" name="firstName" />
-         </div>
-         <div>
-           LastName  <input type="text" name="lastName" />
-         </div>
-         <div>
-           Confirm Password  <input type="text" name="password" />
-         </div>
-         <div>
-           Password  <input type="password" name="password" />
-         </div>
-         <button>Register!</button>
-       </form>   */}
+
+            <div className="mt-5 text-center">
+                <p>Don&apos;t have an account? <Link href="/register" className="text-purple-700">Sign Up</Link></p>
+            </div>
+       
           </div>
         </div>
+
       </div>
     </>
   );
