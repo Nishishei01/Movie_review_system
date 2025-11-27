@@ -33,16 +33,13 @@ const ValidateAuth = {
       where: {
         username: val.username,
         email: val.email,
-        password: val.password,
-        firstName: val.firstName,
-        lastName: val.lastName
       }
     })
 
     if (existingUser) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'username or email already exist.'
+        message: 'Username or Email already exist.'
       })
     }
   }),

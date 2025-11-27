@@ -31,7 +31,6 @@ axiosInstance.interceptors.request.use((config) => {
   const storeToken = localStorage.getItem('accessToken');
 
   if(storeToken) {
-    console.log(storeToken);
     const { state } = JSON.parse(storeToken);
     const accessToken = state.accessToken;
 
@@ -39,7 +38,6 @@ axiosInstance.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
   }
-console.log("Axios Request:", config.url, config.baseURL)
   return config
 })
 

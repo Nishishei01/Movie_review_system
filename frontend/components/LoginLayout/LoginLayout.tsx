@@ -3,11 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useForm } from "react-hook-form"
+import { useState } from "react";
 import { AuthProps } from "@/types";
 import { authApi } from "@/apis/auth";
 import { useRouter } from 'next/navigation'
+import axios from "axios";
 
 export function LoginLayout() {
+
+  const [ apiResError, setApiResError ] = useState<string | null>(null);
 
   const { 
     register, 
@@ -22,15 +26,21 @@ export function LoginLayout() {
 
   const router = useRouter()
 
-  console.log(errors);
-
   async function onSubmit(data: AuthProps.LoginType) {
     try {
       const res = await authApi.login(data);
       localStorage.setItem("accessToken", JSON.stringify({ state: { accessToken: res.data.accessToken } }));
       router.push('/')
-    } catch (error) {
-      console.error("Login Failed: ", error)
+    } catch (error: unknown) {
+      console.log('Login Failed: ', error);
+      if (axios.isAxiosError(error)) {
+        const msg = 
+          error.response?.data.message ||
+          error.response?.data.error ||
+          'Username or Password incorrect'
+          
+          setApiResError(msg);
+      }
     }
   }
 
@@ -61,23 +71,58 @@ export function LoginLayout() {
                 <input 
                   type="text"
                   {...register('username', { required: 'This is required.', minLength: { value: 3, message: 'Min length is 3'} })}
-                  className="w-full shadow-xs shadow-purple-500/50 focus:shadow-lg focus:shadow-purple-500/50 focus:outline-none rounded-md p-3 text-base"
+                  className={`w-full shadow-xs 
+                    ${errors.username ? 'shadow-red-500/50' : 'shadow-purple-500/50'}
+                    focus:shadow-lg 
+                    ${errors.username ? 'focus:red-purple-500/50 ' : 'focus:shadow-purple-500/50'}
+                    focus:outline-none rounded-md p-3 text-base`}
                   placeholder="Type your username"
                 />
+                <div className="h-[20px] mt-1.5">
+                {
+                  errors.username && (
+                    <p className="text-red-500 text-[13px] font-bold">{errors.username.message}</p>
+                  )
+                }
+                </div>
               </div>
               <div>
                 <label htmlFor="password" className="block mb-2 text-base font-medium text-gray-700">Password</label>
                 <input 
                   type="password"
-                  {...register('password', { required: true })}
-                  className="w-full shadow-xs shadow-purple-500/50 focus:shadow-lg focus:shadow-purple-500/50 focus:outline-none rounded-md p-3 text-base"
+                  {...register('password', { required: 'This is required', minLength: { value: 3, message: 'Min length is 3'} })}
+                  className={`w-full shadow-xs 
+                    ${errors.password ? 'shadow-red-500/50': 'shadow-purple-500/50'}
+                    focus:shadow-lg 
+                    ${errors.password ? 'focus:shadow-red-500/50': 'focus:shadow-purple-500/50'}
+                    focus:outline-none rounded-md p-3 text-base`}
                   placeholder="Type your password"
                 />
+                <div className="h-[20px] mt-1.5">
+                  {
+                    errors.password && (
+                      <p className="text-red-500 text-[13px] font-bold">{errors.password.message}</p>
+                    )
+                 }
+                </div>
               </div>
-              <div className="text-center mt-10">
+              <div className="text-center">
+                <div className="h-[32px]">
+                {
+                  apiResError && (
+                    <p className="text-red-500 text-center pb-2">{apiResError}</p>
+                  )
+                }
+                </div>
                 <button
                   type="submit"
-                  className="bg-purple-700 rounded-xl text-white text-shadow-lg w-50 h-full p-3 hover:bg-purple-900 hover:shadow-lg hover:shadow-yellow-200/50 "
+                  className={`
+                    ${errors.username || errors.password ? 
+                      'bg-purple-700 hover:shadow-lg cursor-not-allowed opacity-50' : 
+                      'bg-purple-700 hover:bg-purple-900 hover:shadow-lg hover:shadow-yellow-200/50 cursor-pointer'
+                    }
+                    rounded-xl text-white text-shadow-lg w-50 h-full p-3 
+                    `}
                 >
                   Sign In
                 </button>
