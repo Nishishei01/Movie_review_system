@@ -10,14 +10,15 @@ export default {
     try {
       const { 
         content,
-        rating,
-        userID, 
+        rating, 
         movieName, 
         movieImage, 
         overview, 
         genreIDs, 
         imdbID 
       } = req.body as ValidateCreatePost
+
+      const userID = res.locals.user.id
 
       const result = await prisma.$transaction(async (tx) => {
         
@@ -30,7 +31,7 @@ export default {
             data: {
               content,
               rating,
-              userID,
+              userID: userID,
               movieID: existingMovie.id
             }
           })
@@ -50,7 +51,7 @@ export default {
             data: {
               content,
               rating,
-              userID,
+              userID: userID,
               movieID: createdMovie.id
             }
           })
@@ -91,10 +92,30 @@ export default {
       queryList.push(
         {
           $lookup: {
+            from: "User",
+            localField: "userID",
+            foreignField: "_id",
+            as: "userPost"
+          }
+        },
+        {
+          $unwind: {
+            path: "$userPost",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
             from: "Movie",
             localField: "movieID",
             foreignField: "_id",
             as: "movie"
+          }
+        },
+        {
+          $unwind: {
+            path: "$movie",
+            preserveNullAndEmptyArrays: true
           }
         },
         {
@@ -113,6 +134,12 @@ export default {
                   localField: "userID",
                   foreignField: "_id",
                   as: "userComment"
+                }
+              },
+              {
+                $unwind: {
+                  path: "$userComment",
+                  preserveNullAndEmptyArrays: true
                 }
               }
             ],
@@ -142,6 +169,7 @@ export default {
           }
         }
       )
+
       const result = await prisma.post.aggregateRaw({
         pipeline: [
           ...queryList,

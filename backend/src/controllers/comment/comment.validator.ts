@@ -3,7 +3,6 @@ import { z } from "zod"
 const ValidateComment = {
   validateCreateComment: z.object({
     comment: z.string(),
-    userID: z.string(),
     postID: z.string()
   }),
   validateUpdateComment: z.object({
