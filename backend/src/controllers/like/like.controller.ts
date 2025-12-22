@@ -5,7 +5,9 @@ import { ValidateCreateLike } from "./like.validator";
 export default {
   createLike: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { postID, userID } = req.body as ValidateCreateLike
+      const { postID } = req.body as ValidateCreateLike
+      const userID = res.locals.user.id
+      
       const result = await prisma.like.create({
         data: {
           postID,

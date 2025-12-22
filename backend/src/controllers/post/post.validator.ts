@@ -4,7 +4,7 @@ const ValidatePost = {
   validateCreatePost: z.object({
     content: z.string(),
     rating: z.number(),
-    userID: z.string(),
+    // userID: z.string(),
     movieName: z.string(),
     movieImage: z.string(),
     overview: z.string(),

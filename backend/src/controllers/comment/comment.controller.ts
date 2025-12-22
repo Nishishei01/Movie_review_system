@@ -7,9 +7,8 @@ import { ValidateCreateComment } from "./comment.validator";
 export default {
   createComment: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { comment, postID, userID } = req.body as ValidateCreateComment
-      // const user = res.locals
-      // console.log(user)
+      const { comment, postID } = req.body as ValidateCreateComment
+      const userID = res.locals.user.id
       
       const result = await prisma.$transaction (async (tx) => {
         const createdComment = await tx.comment.create({

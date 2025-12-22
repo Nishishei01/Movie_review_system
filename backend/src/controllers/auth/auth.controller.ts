@@ -19,6 +19,12 @@ export default {
           password: hashedPassword,
           firstName,
           lastName
+        },
+        select: {
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
         }
       })
 
@@ -37,7 +43,7 @@ export default {
           username: username
         }
       })
-
+      
       if (!checkUser) {
         res.status(401).json({ message: "Invalid username or password" });
         return
@@ -48,19 +54,36 @@ export default {
         res.status(401).json({ message: 'Invalid username or password' })
         return
       }
-      const payload = checkUser
+      const payload = {
+        id: checkUser.id,
+        username: checkUser.username,
+        email: checkUser.email,
+        firstName: checkUser.firstName,
+        lastName: checkUser.lastName,
+      }
 
       const accessToken = JwtUtils.signAccessToken(payload)
       const refreshToken = JwtUtils.signRefreshToken(payload)
 
       res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
+      secure: false, //ถ้าเป็นhttpsค่อยเปิด
+      sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+      // path: "/auth/refresh",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000
       })
 
-      res.status(201).json({ accessToken })
+      // res.cookie("accessToken", accessToken, {
+      // httpOnly: true,
+      // secure: false, //ถ้าเป็นhttpsค่อยเปิด
+      // sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+      // // path: "/auth/refresh",
+      // path: "/",
+      // maxAge: 1 * 24 * 60 * 60 * 1000
+      // })
+
+      res.status(200).json({ accessToken, userData: payload })
 
     } catch (error) {
       next(error)
@@ -72,6 +95,7 @@ export default {
 
       if (!token) {
         res.status(401).json({ message: "Refresh Token missing or expired"})
+        return
       }
 
       const decoded = JwtUtils.verifyRefreshToken(token) as jwt.JwtPayload;
@@ -89,12 +113,36 @@ export default {
 
     const newAccessToken = JwtUtils.signAccessToken(user);
 
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: false, //ถ้าเป็นhttpsค่อยเปิด
+      sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+      // path: "/auth/refresh",
+      path: "/",
+      maxAge: 1 * 24 * 60 * 60 * 1000
+      })
+
      res.status(200).json({ accessToken: newAccessToken });
      return
 
     } catch (error) {
       next(error)
     }
-  }
+  },
+   logout: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false, //ถ้าเป็นhttpsค่อยเปิด
+        sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+        // path: "/auth/refresh",
+        path: "/",
+      })
+
+      res.status(200).json({ message: 'Logged out'})
+    } catch (error) {
+      next(error)
+    }
+   }
 
 }

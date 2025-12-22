@@ -1,13 +1,19 @@
-import "../../styles/globals.css";
+// import { Nunito } from "next/font/google";
 
-export default function RootLayout({
+// const nuntio = Nunito({
+//   subsets: ['latin']
+// })
+
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
+    // <html lang="en" className={nuntio.className}>
+      <>
+      {children}
+      </>
+    // </html>
   )
 }

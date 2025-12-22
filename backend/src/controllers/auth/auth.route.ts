@@ -22,5 +22,10 @@ router.get(
   Controller.refreshToken
 )
 
+router.get(
+  '/logout',
+  Controller.logout
+)
+
 export default router
 
