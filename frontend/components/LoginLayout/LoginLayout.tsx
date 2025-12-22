@@ -36,7 +36,8 @@ export function LoginLayout() {
 
       setUser({
         firstName: res.data.userData.firstName,
-        lastName: res.data.userData.lastName
+        lastName: res.data.userData.lastName,
+        id: res.data.userData.id
       });
 
       router.push('/')

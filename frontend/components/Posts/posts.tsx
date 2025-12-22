@@ -5,9 +5,12 @@ import { useState } from "react"
 import Image from 'next/image'
 import CommentPreview from "../comment/commentPreview";
 import PostContent from "./postContent";
+import LikeButton from "../like/likeButton";
+import CommentInput from "../comment/commentInput";
 
 export default function Posts({posts}: {posts: PostProps.PostType[]}) {
   const [postsList] = useState(posts);
+  const [openCommentPostId, setOpenCommentPostId] = useState<string | null>(null);
 
   return(
     <div className="flex flex-col items-center gap-6 my-5">
@@ -78,10 +81,26 @@ export default function Posts({posts}: {posts: PostProps.PostType[]}) {
 
             {/* Like & Comment */}
             <div className="flex items-center gap-6 px-5 py-3 border-t border-gray-100 text-sm text-gray-600">
-              <span>👍 Likes: {post.likes.length || 0}</span>
-              <span>💬 Comments: {post.comments.length || 0}</span>
+              <LikeButton
+                posts={post}
+              />
+              <span 
+                className="cursor-pointer hover:text-violet-600"
+                onClick={() => 
+                  setOpenCommentPostId(
+                    openCommentPostId === post.id ? null : post.id
+                  )
+                }
+              >
+                💬 Comments: {post.comments.length || 0}
+                </span>
             </div>
-            
+            {
+              openCommentPostId === post.id && (
+                <CommentInput posts={post} />
+              )
+            }    
+
             <CommentPreview comments={post.comments} />
 
 

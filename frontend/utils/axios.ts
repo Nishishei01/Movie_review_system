@@ -38,22 +38,22 @@ axiosInstance.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
   }
+
   return config
 })
 
 axiosInstance.interceptors.response.use(async (response) => response, async (error) => {
   try {
-    const errorResponse = error?.response
+    const errorResponse = error.response
     if (errorResponse) {
-      if (errorResponse.status === 401
-        && errorResponse.config
+      if (errorResponse.status === 403
         && !errorResponse.config.__isRetryRequest
-        && errorResponse.data.errorCode === 'token/expired'
       ) {
         const newAccessToken = await refreshAccessToken()
 
         errorResponse.config.headers.Authorization = 'Bearer ' + newAccessToken
         errorResponse.config.__isRetryRequest = true
+
         return axios(errorResponse.config)
       }
     } else {

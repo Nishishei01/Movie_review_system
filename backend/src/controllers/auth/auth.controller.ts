@@ -74,14 +74,14 @@ export default {
       maxAge: 7 * 24 * 60 * 60 * 1000
       })
 
-      res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: false, //ถ้าเป็นhttpsค่อยเปิด
-      sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
-      // path: "/auth/refresh",
-      path: "/",
-      maxAge: 1 * 24 * 60 * 60 * 1000
-      })
+      // res.cookie("accessToken", accessToken, {
+      // httpOnly: true,
+      // secure: false, //ถ้าเป็นhttpsค่อยเปิด
+      // sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+      // // path: "/auth/refresh",
+      // path: "/",
+      // maxAge: 1 * 24 * 60 * 60 * 1000
+      // })
 
       res.status(200).json({ accessToken, userData: payload })
 

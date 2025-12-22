@@ -38,6 +38,7 @@ export namespace PostProps {
   }
 
   export interface Like {
+  id: string
   postID: string
   userID: string
   }

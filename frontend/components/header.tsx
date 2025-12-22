@@ -20,6 +20,7 @@ export function Header() {
     try {
         await authApi.logout();
         localStorage.removeItem("accessToken")
+        localStorage.removeItem("auth-storage")
         router.push('/login')
     } catch (error) {
         console.log("Logout Failed", error);
