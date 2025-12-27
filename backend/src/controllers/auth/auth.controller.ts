@@ -83,7 +83,7 @@ export default {
       // maxAge: 1 * 24 * 60 * 60 * 1000
       // })
 
-      res.status(200).json({ accessToken, userData: payload, message: 'test cicd' })
+      res.status(200).json({ accessToken, userData: payload })
 
     } catch (error) {
       next(error)

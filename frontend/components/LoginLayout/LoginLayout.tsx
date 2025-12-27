@@ -72,7 +72,7 @@ export function LoginLayout() {
           <div className="w-full">
 
             <div className="text-center font-bold text-4xl mb-10">
-              <h1> <span className="text-purple-700">Sign in</span> to Accounts</h1>
+              <h1> <span className="text-purple-700">Sign in</span> to Account</h1>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} name="login" className="flex flex-col gap-6">
