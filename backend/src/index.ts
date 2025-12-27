@@ -16,7 +16,8 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const allowedOrigins = [
-  "http://localhost:3000"
+  "http://localhost:3000",
+  "https://movie-review-system-frontend-nishishei01-nishisheis-projects.vercel.app/"
 ]
 
 app.use(bodyParser.json());
