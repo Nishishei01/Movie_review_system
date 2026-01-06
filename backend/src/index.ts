@@ -17,7 +17,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://movie-review-system-frontend-nishishei01-nishisheis-projects.vercel.app"
+  "https://movie-review-system-frontend-ten.vercel.app"
 ]
 
 app.use(bodyParser.json());
