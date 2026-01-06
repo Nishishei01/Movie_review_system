@@ -1,5 +1,7 @@
 // import { Nunito } from "next/font/google";
 
+import AuthProvider from "@/utils/authProvider"
+
 // const nuntio = Nunito({
 //   subsets: ['latin']
 // })
@@ -12,7 +14,9 @@ export default function AuthLayout({
   return (
     // <html lang="en" className={nuntio.className}>
       <>
-      {children}
+      <AuthProvider mode="public">
+        {children}
+      </AuthProvider>
       </>
     // </html>
   )

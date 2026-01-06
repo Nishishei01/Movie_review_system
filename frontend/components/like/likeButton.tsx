@@ -6,30 +6,22 @@ import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { PostProps } from "@/types";
 import { likeApi } from "@/apis/like";
 
+
 export default function LikeButton({posts}: {posts: PostProps.PostType} ) {
   
-  // const currentUserString = localStorage.getItem('auth-storage');
-
-
-  // const currentUserObj = JSON.parse(currentUserString as string);
-  // const currentUserId = currentUserObj.state.userData.id
-
-  // const myLike = posts.likes.find((l) => l.userID === currentUserId);
-
-  // const [liked, setLiked] = useState(!!myLike);
-  // const [likeId, setLikeId] = useState(myLike?.id);
-  // const [count, setCount] = useState(posts.likes.length);
-
+  
   const [currentUserId, setCurrentUserId] = useState();
+
   const [liked, setLiked] = useState(false);
   const [likeId, setLikeId] = useState<string | undefined>();
   const [count, setCount] = useState(posts.likes.length);
   
   useEffect(() => {
-    const currentUserString = localStorage.getItem('auth-storage');
+    const currentUserString = localStorage.getItem('user-storage');
     if (!currentUserString) return;
 
     const currentUserObj = JSON.parse(currentUserString as string);
+    
     const currentUserId = currentUserObj.state.userData.id
 
     if (currentUserId) {
@@ -42,6 +34,7 @@ export default function LikeButton({posts}: {posts: PostProps.PostType} ) {
   }, [posts.likes])
 
   const toggleLike = async () => {
+    
     if (!currentUserId) return;
     
     try {

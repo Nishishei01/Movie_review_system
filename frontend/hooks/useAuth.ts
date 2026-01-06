@@ -1,26 +1,19 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
-type User = {
-  id: string;
-  firstName: string;
-  lastName: string;
+interface AuthState {
+  accessToken: string | null;
+  isAuthReady: boolean;
+
+  setAccessToken: (token: string) => void;
+  clearAccessToken: () => void;
+  setAuthReady: () => void;
 }
 
-export interface AuthData {
-  userData: User | null;
-  setUser: (userData: User) => void;
-}
+export const useAuth = create<AuthState>((set) => ({
+  accessToken: null,
+  isAuthReady: false,
 
-export const useAuth = create<AuthData>()(
-  persist(
-    (set) => ({
-      userData: null,
-
-      setUser: (userData) => set({ userData }),
-    }),
-    {
-      name: 'auth-storage',
-    }
-  )
-)
+  setAccessToken: (token) => set({ accessToken: token }),
+  clearAccessToken: () => set({ accessToken: null, isAuthReady: false }),
+  setAuthReady: () => set({ isAuthReady: true }),
+}));

@@ -1,13 +1,15 @@
 'use client'
 
-import { authApi } from "@/apis/auth"
 import { useAuth } from "@/hooks/useAuth"
+import { useUser } from "@/hooks/useUser"
 import { UserCircleIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
+import { authApi } from "@/apis/auth";
 
 export function Header() {  
-  const userData = useAuth((state) => state.userData)
+  const userData = useUser((state) => state.userData)
+  const clearAccessToken = useAuth((s) => s.clearAccessToken);
 
   const fullName = userData ? `${userData.firstName} ${userData.lastName}` : ""
   const displayName = fullName.length > 12 
@@ -18,13 +20,15 @@ export function Header() {
   
   async function handleLogout() {
     try {
-        await authApi.logout();
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("auth-storage")
-        router.push('/login')
-    } catch (error) {
-        console.log("Logout Failed", error);
-    }
+          await authApi.logout();
+          localStorage.removeItem("user-storage");
+        } catch (error) {
+          console.error("Logout API failed", error);
+        } finally {
+          clearAccessToken();
+    
+          router.replace("/login");
+        }
   }
     
   return (
