@@ -1,5 +1,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import AuthProvider from "@/utils/authProvider";
 
 export default function MainLayout({
   children,
@@ -8,9 +9,11 @@ export default function MainLayout({
 }>) {
   return (
       <>
+      <AuthProvider mode="private">
         <Header />
         {children}
         <Footer />
+      </AuthProvider>
       </>
   );
 }

@@ -1,26 +1,5 @@
 import axios from "axios";
-
-const refreshAccessToken = async () => {
-
-  const res = await axios.post(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refreshToken`
-  )
-
-  const storeToken = localStorage.getItem('accessToken')
-  const localData = JSON.parse(storeToken as string)
-
-  const newLocalData = {
-    ...localData,
-    state: {
-      ...localData.state,
-      accessToken: res.data.accessToken
-    }
-  }
-
-  localStorage.setItem('accessToken', JSON.stringify(newLocalData))
-
-  return res.data.accessToken
-}
+import { useAuth  } from "@/hooks/useAuth";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
@@ -28,45 +7,58 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const storeToken = localStorage.getItem('accessToken');
+  const token = useAuth.getState().accessToken;
 
-  if(storeToken) {
-    const { state } = JSON.parse(storeToken);
-    const accessToken = state.accessToken;
-
-    if(accessToken && config.headers) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config
 })
 
 axiosInstance.interceptors.response.use(async (response) => response, async (error) => {
-  try {
-    const errorResponse = error.response
-    if (errorResponse) {
-      if (errorResponse.status === 403
-        && !errorResponse.config.__isRetryRequest
-      ) {
-        const newAccessToken = await refreshAccessToken()
+  const originalRequest = error.config;
+  
+  if (!error.response) {
+  return Promise.reject(error);
+  }
 
-        errorResponse.config.headers.Authorization = 'Bearer ' + newAccessToken
-        errorResponse.config.__isRetryRequest = true
+  if (
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/register") ||
+      originalRequest.url?.includes("/auth/refreshToken")
+    ) {
+      return Promise.reject(error);
+    }
 
-        return axios(errorResponse.config)
-      }
-    } else {
-      if (error?.code === 'ERR_CANCELED') {
-        return Promise.resolve(error)
+  if (
+      (error.response?.status === 401 ||
+        error.response?.status === 403) &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const res = await axiosInstance.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refreshToken`,
+        );
+
+        const newAccessToken = res.data.accessToken;
+        useAuth.getState().setAccessToken(newAccessToken);
+
+        originalRequest.headers.Authorization =
+          `Bearer ${newAccessToken}`;
+
+        return axiosInstance(originalRequest);
+      } catch {
+        useAuth.getState().clearAccessToken();
+        window.location.href = "/login";
       }
     }
-  } catch (error) {
-    console.log(`Error: ${error}`);
-    localStorage.removeItem('accessToken')
+
+    return Promise.reject(error);
   }
-  return Promise.reject(error)
-})
+);
 
 export {
   axiosInstance as axios

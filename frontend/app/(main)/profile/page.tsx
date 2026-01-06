@@ -1,25 +1,30 @@
-'use client'
+"use client";
+
 import { authApi } from "@/apis/auth";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Profile() {
   const router = useRouter();
-  async function handleLogout() {
+  const clearAccessToken = useAuth((s) => s.clearAccessToken);
+
+  const handleLogout = async () => {
     try {
       await authApi.logout();
-      localStorage.removeItem("accessToken")
-      router.push('/login')
+      localStorage.removeItem("user-storage");
     } catch (error) {
-      console.log("Logout Failed", error);
+      console.error("Logout API failed", error);
+    } finally {
+      clearAccessToken();
+
+      router.replace("/login");
     }
-  }
+  };
 
   return (
     <div>
       <h1>Profile na eiei</h1>
-      <button
-        onClick={handleLogout}
-      >
+      <button onClick={handleLogout}>
         Logout
       </button>
     </div>

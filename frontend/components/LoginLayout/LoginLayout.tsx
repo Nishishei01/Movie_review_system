@@ -7,8 +7,9 @@ import { useState } from "react";
 import { AuthProps } from "@/types";
 import { authApi } from "@/apis/auth";
 import { useRouter } from 'next/navigation'
-import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@/hooks/useUser";
 import axios from "axios";
+import { useAuth } from "@/hooks/useAuth";
 
 export function LoginLayout() {
 
@@ -27,19 +28,21 @@ export function LoginLayout() {
 
   const router = useRouter()
 
-  const setUser = useAuth((state) => state.setUser)
+  const setUser = useUser((state) => state.setUser);
+  const setAccessToken = useAuth((s) => s.setAccessToken);
 
   async function onSubmit(data: AuthProps.LoginType) {
     try {
       const res = await authApi.login(data);
-      localStorage.setItem("accessToken", JSON.stringify({ state: { accessToken: res.data.accessToken } }));
+
+      setAccessToken(res.data.accessToken);
 
       setUser({
         firstName: res.data.userData.firstName,
         lastName: res.data.userData.lastName,
         id: res.data.userData.id
       });
-
+      
       router.push('/')
     } catch (error: unknown) {
       console.log('Login Failed: ', error);

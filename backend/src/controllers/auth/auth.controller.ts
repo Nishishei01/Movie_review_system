@@ -3,7 +3,17 @@ import { prisma } from "../../database/src/cilent"
 import { ValidateLogin, ValidateRegister } from "./auth.validator";
 import bcrypt from 'bcrypt'
 import { JwtUtils } from "./auth.utils" 
-import jwt, { JwtPayload } from "jsonwebtoken"
+import jwt from "jsonwebtoken"
+
+interface MyTokenPayload {
+  id: string;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  iat: number;
+  exp: number;
+}
 
 export default {
   register: async (req: Request, res: Response, next: NextFunction) => {
@@ -113,14 +123,14 @@ export default {
 
     const newAccessToken = JwtUtils.signAccessToken(user);
 
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: true, //ถ้าเป็นhttpsค่อยเปิด
-      sameSite: "none", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
-      // path: "/auth/refresh",
-      path: "/",
-      maxAge: 1 * 24 * 60 * 60 * 1000
-      })
+    // res.cookie("accessToken", newAccessToken, {
+    //   httpOnly: true,
+    //   secure: true, //ถ้าเป็นhttpsค่อยเปิด
+    //   sameSite: "none", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+    //   // path: "/auth/refresh",
+    //   path: "/",
+    //   maxAge: 1 * 24 * 60 * 60 * 1000
+    //   })
 
      res.status(200).json({ accessToken: newAccessToken });
      return
@@ -129,12 +139,12 @@ export default {
       next(error)
     }
   },
-   logout: async (req: Request, res: Response, next: NextFunction) => {
+  logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.clearCookie("refreshToken", {
         httpOnly: true,
-        secure: false, //ถ้าเป็นhttpsค่อยเปิด
-        sameSite: "lax", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
+        secure: true, //ถ้าเป็นhttpsค่อยเปิด
+        sameSite: "none", //strict Cookie จะ ไม่ถูกส่งข้าม origin เลย, lax Cookie จะถูกส่งข้าม origin แค่บาง request เช่น GET
         // path: "/auth/refresh",
         path: "/",
       })
@@ -143,6 +153,37 @@ export default {
     } catch (error) {
       next(error)
     }
-   }
+  },
+  accessToken: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authHeader = req.headers.authorization;
+      
+      if (!authHeader) {
+        res.status(401).json({ message: "Authorization header missing" });
+        return;
+      }
+      
+      const token = authHeader.split(" ")[1];
+
+      const decoded = JwtUtils.verifyAccessToken(token) as MyTokenPayload; 
+
+      const result = await prisma.$transaction(async (tx) => {
+        const userData = await tx.user.findUnique({
+          where: { id: decoded.id },
+          select: {
+            username: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          }
+        })
+        return userData
+      })   
+      
+      res.status(200).json({ user: result })
+    } catch (error) {
+      next(error)
+    }
+  }
 
 }

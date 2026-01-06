@@ -23,6 +23,11 @@ router.get(
 )
 
 router.get(
+  '/accessToken',
+  Controller.accessToken
+)
+
+router.get(
   '/logout',
   Controller.logout
 )
