@@ -32,5 +32,10 @@ router.get(
   Controller.logout
 )
 
+router.get(
+  '/search/user',
+  Controller.searchUser
+)
+
 export default router
 

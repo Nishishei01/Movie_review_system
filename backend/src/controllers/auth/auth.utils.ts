@@ -18,12 +18,11 @@ export const JwtUtils = {
       expiresIn: '7d'
     })
   },
-
   verifyAccessToken: (token: string) => {
     return jwt.verify(token, JWT_ACCESS_SECRET, { algorithms: ["HS256"] })
   },
 
   verifyRefreshToken: (token: string) => {
     return jwt.verify(token, JWT_REFRESH_SECRET, { algorithms: ["HS256"] })
-  },
+  }
 }
