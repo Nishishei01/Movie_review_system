@@ -4,6 +4,9 @@ import { ValidateLogin, ValidateRegister } from "./auth.validator";
 import bcrypt from 'bcrypt'
 import { JwtUtils } from "./auth.utils" 
 import jwt from "jsonwebtoken"
+import { Prisma } from "@prisma/client";
+import { UtilsHelpers } from "../../helpers/helper";
+import { Filter } from "../utils/filter";
 
 interface MyTokenPayload {
   id: string;
@@ -181,6 +184,45 @@ export default {
       })   
       
       res.status(200).json({ user: result })
+    } catch (error) {
+      next(error)
+    }
+  },
+  searchUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { query } = req.query as { query: string };
+      let queryList: Prisma.InputJsonValue[] = []
+      
+      if (query && query.trim() !== '') {
+        queryList.push({
+          $match: {
+            $or: [
+              { firstName: { $regex: query, $options: 'i' } },
+              { lastName: { $regex: query, $options: 'i' } }
+            ]
+          }
+        })
+      }
+
+      queryList.push(
+        {
+          $project: {
+            password: 0,
+            refreshToken: 0
+          }
+        }
+      )
+
+      const result = await prisma.user.aggregateRaw({
+        pipeline: [
+          ...queryList,
+          ...Filter.handleQueryAggregate(req.query)
+        ]
+      })
+
+      UtilsHelpers.convertFieldList(result)
+
+      res.status(200).json({ result })
     } catch (error) {
       next(error)
     }

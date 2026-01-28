@@ -6,6 +6,8 @@ import { UserCircleIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { authApi } from "@/apis/auth";
+import { SearchAutocomplete } from "./searchBar"
+import { AuthProps } from "@/types"
 
 export function Header() {  
   const userData = useUser((state) => state.userData)
@@ -32,15 +34,28 @@ export function Header() {
   }
     
   return (
-    <header>
-      <nav className="flex justify-between items-center text-center mx-45 my-0.5 rounded-4xl h-15 px-15 border-x-1 border-t-1 border-b-1 border-gray-300 shadow-xl/4">
+    <header className="sticky top-0 z-50 w-full pt-1">
+      <nav className="flex justify-between items-center text-center mx-45 my-0.5 rounded-4xl h-15 px-15 border-x-1 border-t-1 border-b-1 border-gray-300 shadow-xl/4 bg-white ">
         <div className="flex-1 flex justify-start">
           <Link href='/'>
             <h1 className="font-bold text-xl">Movie <span className="text-purple-700">Review</span></h1>
           </Link>
         </div>
         <div className="flex-1 flex justify-center">
-            <input type="text" placeholder="Search User" />
+            {/* <input type="text" placeholder="Search User" /> */}
+            <SearchAutocomplete<AuthProps.SearchUserType>
+              placeholder="Search user"
+              fetcher={(q) =>
+                authApi.searchUser({ query: q }).then(r => r.data.result)
+              }
+              getOptionLabel={(item) =>
+                `${item.firstName} ${item.lastName}`
+              }
+              getOptionValue={(item) => item.id}
+              onSelect={(item) => {
+              router.push(`/profile/${item.id}`)
+              }}
+            />
         </div>
         <div className="flex-1 flex justify-end group">
             <button className=" flex cursor-pointer items-center gap-2 text-white bg-purple-700 rounded-[10px] h-[33px] px-4">

@@ -11,4 +11,9 @@ export namespace AuthProps {
     firstName: string
     lastName: string
   }
+  export interface SearchUserType {
+    id: string
+    firstName: string
+    lastName: string
+  }
 }

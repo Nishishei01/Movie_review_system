@@ -13,5 +13,11 @@ export const authApi = {
   register: async (data: AuthProps.RegisterType) => {
     const res = await axios.post('/auth/register', {...data})
     return res
+  },
+  searchUser: async (params: { query: string }) => {
+    const res = await axios.get('/auth/search/user', {
+      params
+    })
+    return res
   }
 }
