@@ -57,4 +57,14 @@ export namespace PostProps {
   createdAt: string
   }
 
+  export interface createPost {
+    content: string
+    rating: number
+    userID: string
+    movieName: string
+    movieImage: string
+    overview: string
+    genreIDs: number[]
+    imdbID: string
+  }
 }

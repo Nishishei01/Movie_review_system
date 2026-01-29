@@ -91,6 +91,9 @@ export default {
 
       queryList.push(
         {
+            $sort: { createdAt: -1 }
+        },
+        {
           $lookup: {
             from: "User",
             localField: "userID",
