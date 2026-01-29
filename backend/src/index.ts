@@ -11,6 +11,7 @@ import ValidateAuth from "./controllers/auth/auth.validator";
 import postRoute from "./controllers/post/post.route"
 import commentRoute from "./controllers/comment/comment.route"
 import likeRoute from "./controllers/like/like.route"
+import movieRoute from "./controllers/movie/movie.route"
 
 dotenv.config();
 const app = express();
@@ -38,6 +39,7 @@ router.use(ValidateAuth.jwtProtect);
 router.use("/post", postRoute)
 router.use("/comment", commentRoute)
 router.use("/like", likeRoute)
+router.use("/movie", movieRoute)
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

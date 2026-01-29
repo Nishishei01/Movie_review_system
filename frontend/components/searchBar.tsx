@@ -19,7 +19,11 @@ export function SearchAutocomplete<T>({
   placeholder = 'Search...',
   debounce = 400,
 }: Props<T>) {
-  const [keyword, setKeyword] = useState('')
+
+  /** 🔑 แยก state ชัดเจน */
+  const [searchValue, setSearchValue] = useState('')   // ใช้ยิง API
+  const [displayValue, setDisplayValue] = useState('') // ใช้แสดงใน input
+
   const [data, setData] = useState<T[]>([])
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
@@ -28,7 +32,7 @@ export function SearchAutocomplete<T>({
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!keyword.trim()) {
+    if (!searchValue.trim()) {
       setData([])
       setOpen(false)
       return
@@ -39,8 +43,7 @@ export function SearchAutocomplete<T>({
         setLoading(true)
         setError(null)
 
-        const res = await fetcher(keyword)
-
+        const res = await fetcher(searchValue)
         setData(Array.isArray(res) ? res : [])
         setOpen(true)
       } catch (e) {
@@ -54,7 +57,7 @@ export function SearchAutocomplete<T>({
     }, debounce)
 
     return () => clearTimeout(timer)
-  }, [keyword, fetcher, debounce])
+  }, [searchValue, fetcher, debounce])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -70,15 +73,16 @@ export function SearchAutocomplete<T>({
     return () =>
       document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-  
+
   return (
-    <div
-      ref={wrapperRef}
-      className="relative w-full overflow-visible"
-    >
+    <div ref={wrapperRef} className="relative w-full overflow-visible">
       <input
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
+        value={displayValue}
+        onChange={(e) => {
+          const value = e.target.value
+          setDisplayValue(value) // แสดงผล
+          setSearchValue(value)  // ใช้ค้นหา
+        }}
         placeholder={placeholder}
         className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
@@ -88,7 +92,7 @@ export function SearchAutocomplete<T>({
           Loading...
         </div>
       )}
-      
+
       {open && (
         <ul className="absolute z-[9999] w-full bg-white border rounded mt-1 max-h-60 overflow-auto shadow-lg">
           {data.length === 0 && !loading && !error && (
@@ -108,7 +112,9 @@ export function SearchAutocomplete<T>({
               key={getOptionValue(item)}
               onClick={() => {
                 onSelect(item)
-                setKeyword(getOptionLabel(item))
+                setDisplayValue(getOptionLabel(item))
+                setSearchValue('')
+
                 setOpen(false)
               }}
               className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
