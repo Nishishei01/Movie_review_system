@@ -9,9 +9,11 @@ import LikeButton from "../like/likeButton";
 import CommentInput from "../comment/commentInput";
 import { axios } from "@/utils/axios";
 import { useAuth } from "@/hooks/useAuth";
+import { usePostStore } from "@/hooks/usePostStore";
+import { useSocket } from "@/hooks/useSocket";
 
 export default function Posts() {
-  const [posts, setPosts] = useState<PostProps.PostType[]>([]);
+  const { posts, setPosts } = usePostStore();
   const [loading, setLoading] = useState(true);
   
   const [openCommentPostId, setOpenCommentPostId] = useState<string | null>(null);
@@ -19,6 +21,8 @@ export default function Posts() {
   const [selectedPost, setSelectedPost] = useState<PostProps.PostType | null>(null);
 
   const isAuthReady = useAuth((s) => s.isAuthReady);
+  
+  useSocket();
 
   useEffect(() => {
     if (!isAuthReady) return;
@@ -35,7 +39,7 @@ export default function Posts() {
     };
 
     fetchPosts();
-  }, [isAuthReady]);
+  }, [isAuthReady, setPosts]);
 
   useEffect(() => {
     if (selectedPost) {

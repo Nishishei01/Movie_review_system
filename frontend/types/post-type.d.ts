@@ -48,6 +48,7 @@ export namespace PostProps {
   comment: string
   createdAt: string
   userID: string
+  postID: string
   userComment: UserComment
   }
 

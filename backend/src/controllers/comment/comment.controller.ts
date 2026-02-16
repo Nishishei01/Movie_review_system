@@ -4,6 +4,8 @@ import { prisma } from "../../database/src/cilent"
 import { UtilsHelpers } from "../../helpers/helper";
 import { ValidateCreateComment } from "./comment.validator";
 
+import { io } from "../../index";
+
 export default {
   createComment: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -16,11 +18,27 @@ export default {
             comment,
             postID,
             userID
+          },
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                createdAt: true
+              }
+            }
           }
         })
         return createdComment
       })
-      res.status(200).json({ message: "Create comment successfully.", result })
+      
+      const payload = {
+        ...result,
+        userComment: result.user
+      }
+
+      io.emit("comment:created", payload)
+      res.status(200).json({ message: "Create comment successfully.", result: payload })
     } catch (error) {
       next(error)
     }

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../../database/src/cilent";
 import { ValidateCreateLike } from "./like.validator";
 
+import { io } from "../../index";
+
 export default {
   createLike: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -15,6 +17,7 @@ export default {
         }
       })
       
+      io.emit("like:created", result)
       res.status(200).json({ message: "Create successfully.", result })
     } catch (error) {
       next(error)
@@ -27,6 +30,7 @@ export default {
         where: { id }
       })
 
+      io.emit("like:deleted", result)
       res.status(200).json({ message: "Delete successfully.", result })
     } catch (error) {
       next(error)

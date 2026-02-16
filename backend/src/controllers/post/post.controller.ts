@@ -5,6 +5,8 @@ import { Prisma } from "@prisma/client"
 import { UtilsHelpers } from "../../helpers/helper"
 import { Filter } from "../utils/filter"
 
+import { io } from "../../index"
+
 export default {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -33,9 +35,13 @@ export default {
               rating,
               userID: userID,
               movieID: existingMovie.id
+            },
+            include: {
+              user: true,
+              movie: true
             }
           })
-          return { createdPost }
+          return createdPost
         } else {
           const createdMovie = await tx.movie.create({
           data: {
@@ -53,13 +59,25 @@ export default {
               rating,
               userID: userID,
               movieID: createdMovie.id
+            },
+            include: {
+              user: true,
+              movie: true
             }
           })
-          return { createdPost }
+          return createdPost
         }
       })
 
-      res.status(201).json({ result })
+      const payload = {
+        ...result,
+        userPost: result.user,
+        comments: [],
+        likes: []  
+      }
+
+      io.emit("post:created", payload)
+      res.status(201).json({ result: payload })
     } catch (error) {
       next(error)
     }
@@ -80,6 +98,7 @@ export default {
         return updatedPost
       })
 
+      io.emit("post:updated", result)
       res.status(201).json({ message: "Update successfully.", result })
     } catch (error) {
       next(error)
