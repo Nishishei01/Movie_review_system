@@ -14,7 +14,12 @@ import likeRoute from "./controllers/like/like.route"
 import movieRoute from "./controllers/movie/movie.route"
 
 dotenv.config();
+import http from "http";
+import { Server } from "socket.io";
+
 const app = express();
+const server = http.createServer(app);
+
 const port = process.env.PORT || 3000;
 const allowedOrigins = [
   "http://localhost:3000",
@@ -31,6 +36,15 @@ app.use(
   })
 )
 
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+});
+
+export { io };
+
 const router = Router();
 app.use(router);
 
@@ -41,6 +55,6 @@ router.use("/comment", commentRoute)
 router.use("/like", likeRoute)
 router.use("/movie", movieRoute)
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

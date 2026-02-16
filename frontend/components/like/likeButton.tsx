@@ -9,45 +9,35 @@ import { likeApi } from "@/apis/like";
 
 export default function LikeButton({posts}: {posts: PostProps.PostType} ) {
   
-  
-  const [currentUserId, setCurrentUserId] = useState();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const [liked, setLiked] = useState(false);
-  const [likeId, setLikeId] = useState<string | undefined>();
-  const [count, setCount] = useState(posts.likes.length);
-  
   useEffect(() => {
     const currentUserString = localStorage.getItem('user-storage');
     if (!currentUserString) return;
 
-    const currentUserObj = JSON.parse(currentUserString as string);
-    
-    const currentUserId = currentUserObj.state.userData.id
-
-    if (currentUserId) {
-      setCurrentUserId(currentUserId);
-
-      const myLike = posts.likes.find((l) => l.userID === currentUserId);
-      setLiked(!!myLike);
-      setLikeId(myLike?.id);
+    try {
+      const currentUserObj = JSON.parse(currentUserString as string);
+      const id = currentUserObj.state?.userData?.id; 
+      if (id) {
+        setCurrentUserId(id);
+      }
+    } catch (e) {
+      console.error("Parse user storage error", e);
     }
-  }, [posts.likes])
+  }, []);
+
+  const liked = currentUserId ? posts.likes.some((l) => l.userID === currentUserId) : false;
+  const myLike = currentUserId ? posts.likes.find((l) => l.userID === currentUserId) : null;
+  const count = posts.likes.length;
 
   const toggleLike = async () => {
-    
     if (!currentUserId) return;
     
     try {
-      if (liked && likeId) {
-        await likeApi.delete(likeId)
-        setLiked(false);
-        setLikeId(undefined);
-        setCount((c) => c - 1);
+      if (liked && myLike) {
+        await likeApi.delete(myLike.id)
       } else {
-        const res = await likeApi.create({ postID: posts.id})
-        setLiked(true);
-        setLikeId(res.data.result.id);
-        setCount((c) => c + 1);
+        await likeApi.create({ postID: posts.id})
       }
     } catch (err) {
       console.error("Like error:", err);
