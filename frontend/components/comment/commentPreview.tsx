@@ -27,7 +27,7 @@ export default function CommentPreview({ comments }: { comments: PostProps.Comme
               height={33}
               className="rounded-full object-cover"
             /> */}
-            <div className="w-9 h-9 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-gray-500 font-bold text-xs uppercase">
+            <div className="w-9 h-9 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-white font-bold text-xs uppercase">
                 { user.firstName?.charAt(0) || 'U'}
             </div>
             <div className="">

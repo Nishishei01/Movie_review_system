@@ -13,6 +13,7 @@ import { MovieProps } from "@/types/movie-type";
 import { movieApi } from "@/apis/movie";
 import Image from 'next/image'
 import { postApi } from "@/apis/post";
+import { useUser } from "@/hooks/useUser";
 
 interface FormDataState {
   content: string;
@@ -29,6 +30,8 @@ export default function PostCreateBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState("");
+  
+  const userData = useUser((state) => state.userData);
 
   const [formData, setFormData] = useState<FormDataState>({
     content: "",
@@ -107,8 +110,8 @@ export default function PostCreateBar() {
           onClick={() => setIsOpen(true)}
           className="w-full max-w-2xl p-3 flex items-center gap-4 rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-[0_0_15px] hover:shadow-violet-700/25 transition cursor-pointer group"
         >
-          <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
-             <Image src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+          <div className="h-10 w-10 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full flex-shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-white font-bold text-sm uppercase">
+             {userData?.firstName?.[0] || 'U'}
           </div>
           
           <div className="flex-grow bg-gray-100 h-10 rounded-full flex items-center px-4 text-gray-500 group-hover:bg-gray-50 transition">

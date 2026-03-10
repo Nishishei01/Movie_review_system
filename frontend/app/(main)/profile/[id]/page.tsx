@@ -1,0 +1,188 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { authApi } from "@/apis/auth";
+import { postApi } from "@/apis/post";
+import Image from "next/image";
+import PostContent from "@/components/Posts/postContent";
+import LikeButton from "@/components/like/likeButton";
+import CommentPreview from "@/components/comment/commentPreview";
+import CommentInput from "@/components/comment/commentInput";
+import PostSelected from "@/components/Posts/postSelected";
+
+export default function ProfilePage() {
+  const { id } = useParams() as { id: string };
+  const router = useRouter();
+  
+  const [user, setUser] = useState<any>(null);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [openCommentPostId, setOpenCommentPostId] = useState<string | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const selectedPost = posts.find(p => p.id === selectedPostId) || null;
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        setLoading(true);
+
+        const userRes = await authApi.getUserById(id);
+        setUser(userRes.data.result);
+
+
+        const postsRes = await postApi.getPostByUserId(id);
+        setPosts(postsRes.data.result || []);
+        
+      } catch (err: any) {
+        console.error("Error fetching profile data", err);
+        setError("User not found or an error occurred.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProfileData();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (selectedPost) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [selectedPost]);
+
+  if (loading) {
+    return <div className="text-center mt-10 text-gray-500">Loading profile...</div>;
+  }
+
+  if (error || !user) {
+    return (
+      <div className="text-center mt-10">
+        <p className="text-red-500">{error || "User not found"}</p>
+        <button onClick={() => router.push("/")} className="mt-4 text-violet-600 hover:underline cursor-pointer">
+          Go back home
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Profile Header */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8 flex flex-col md:flex-row items-center gap-6">
+        <div className="w-24 h-24 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full shrink-0 shadow-inner flex items-center justify-center text-white font-bold text-4xl uppercase">
+          {user.firstName?.[0] || 'U'}
+        </div>
+        <div className="text-center md:text-left">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {user.firstName} {user.lastName}
+          </h1>
+          <p className="text-gray-500 mt-1 mb-2">@{user.username}</p>
+          <div className="text-sm text-gray-600">
+            <span className="font-semibold block md:inline">Email:</span> {user.email}
+          </div>
+          <div className="text-sm text-gray-600 mt-1">
+            <span className="font-semibold block md:inline">Joined:</span> {new Date(user.createdAt).toLocaleDateString("th-TH", { year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
+        </div>
+      </div>
+
+      {/* User Posts Section */}
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">All Posts ({posts.length})</h2>
+      
+      {posts.length === 0 ? (
+        <p className="text-gray-500 text-center py-10 bg-white rounded-2xl border border-gray-200">
+          This user hasn't posted anything yet.
+        </p>
+      ) : (
+        <div className="flex flex-col items-center gap-6">
+          {posts.map((post) => (
+            <div
+              key={post.id}
+              className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-[0_0_15px] hover:shadow-violet-700/25 transition"
+            >
+              <div className="flex items-center justify-between px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-white font-bold text-xs uppercase">
+                      {post.userPost?.firstName?.[0] || user.firstName?.[0] || 'U'}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {post.userPost?.firstName || user.firstName} {post.userPost?.lastName || user.lastName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(post.createdAt).toLocaleDateString("th-TH", { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-5 pb-3">
+                <PostContent content={post.content} />
+              </div>
+
+              <div className="border-t border-gray-100">
+                <div className="px-5 py-3">
+                  <p className="text-sm text-gray-600">
+                    🎬 <span className="font-medium">{post.movie?.movieName}</span>
+                  </p>
+                </div>
+
+                <div 
+                  className="relative w-full aspect-[16/9] cursor-pointer group"
+                  onClick={() => setSelectedPostId(post.id)}
+                >
+                  {post.movie?.movieImage && (
+                    <Image
+                      src={`https://image.tmdb.org/t/p/original${post.movie.movieImage}`}
+                      alt={post.movie?.movieName || 'Movie Cover'}
+                      fill
+                      className="object-cover group-hover:brightness-90 transition"
+                      sizes="(max-width: 768px) 100vw, 640px"
+                    />
+                  )}
+                </div>
+
+                <div className="px-5 py-3">
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    เรื่องย่อ: {post.movie?.overview}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 px-5 py-3 border-t border-gray-100 text-sm text-gray-600">
+                <LikeButton posts={post} />
+                <span
+                  className="cursor-pointer hover:text-violet-600"
+                  onClick={() =>
+                    setOpenCommentPostId(
+                      openCommentPostId === post.id ? null : post.id
+                    )
+                  }
+                >
+                  💬 Comments: {post.comments?.length || 0}
+                </span>
+              </div>
+
+              {openCommentPostId === post.id && (
+                <CommentInput posts={post} />
+              )}
+
+              <CommentPreview comments={post.comments || []} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {selectedPost && (
+        <PostSelected post={selectedPost} onClose={() => setSelectedPostId(null)} />
+      )}
+    </div>
+  );
+}

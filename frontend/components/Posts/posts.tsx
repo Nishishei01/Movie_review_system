@@ -3,6 +3,7 @@
 // import { PostProps } from "@/types";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import CommentPreview from "../comment/commentPreview";
 import PostContent from "./postContent";
 import LikeButton from "../like/likeButton";
@@ -12,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePostStore } from "@/hooks/usePostStore";
 import { useSocket } from "@/hooks/useSocket";
 import PostSelected from "./postSelected";
+import { postApi } from "@/apis/post";
 
 export default function Posts() {
   const { posts, setPosts } = usePostStore();
@@ -31,7 +33,7 @@ export default function Posts() {
 
     const fetchPosts = async () => {
       try {
-        const res = await axios.get("/post");
+        const res = await postApi.getAllPost();
         setPosts(res.data.result);
       } catch (error) {
         console.error("Fetch posts failed", error);
@@ -70,26 +72,19 @@ export default function Posts() {
           >
             {/* ... (User Info ส่วนเดิม) ... */}
             <div className="flex items-center justify-between px-5 py-4">
-              <div className="flex items-center gap-3">
-                {/* <Image
-                  src="/images/user.jpg"
-                  alt="User Profile"
-                  width={44}
-                  height={44}
-                  className="rounded-full object-cover"
-                /> */}
-                <div className="w-9 h-9 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-gray-500 font-bold text-xs uppercase">
-                    {post.userPost.firstName?.[0] || 'U'}
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    {post.userPost.firstName} {post.userPost.lastName}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(post.createdAt).toLocaleDateString("th-TH", { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </p>
-                </div>
-              </div>
+                <Link href={`/profile/${post.userID}`} className="flex items-center gap-3 group">
+                  <div className="w-9 h-9 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-white font-bold text-xs uppercase group-hover:ring-2 group-hover:ring-violet-400 transition">
+                      {post.userPost.firstName?.[0] || 'U'}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 group-hover:text-violet-600 transition">
+                      {post.userPost.firstName} {post.userPost.lastName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(post.createdAt).toLocaleDateString("th-TH", { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  </div>
+                </Link>
             </div>
 
             <div className="px-5 pb-3">

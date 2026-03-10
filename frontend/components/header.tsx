@@ -69,7 +69,7 @@ export function Header() {
             <div className="absolute right-0 top-full hidden group-hover:flex flex-col w-40 pt-2 z-50">
               <div className="bg-white shadow-lg rounded-xl flex flex-col overflow-hidden border border-gray-100">
                 <Link 
-                  href='/profile'
+                  href={`/profile/${userData?.id}`}
                   className="px-4 py-3 hover:bg-gray-50 text-gray-700 cursor-pointer transition text-sm font-medium"
                 >
                   Profile
