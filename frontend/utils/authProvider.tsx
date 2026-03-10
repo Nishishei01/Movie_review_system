@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { axios } from "@/utils/axios";
 import { useAuth } from "@/hooks/useAuth";
+import { LoadingSpinner } from "@/components/loadingSpinner";
 
 export default function AuthProvider({
   children,
@@ -16,19 +17,21 @@ export default function AuthProvider({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (mode === "public") {
-      setLoading(false);
-      return;
-    }
-
     const checkAuth = async () => {
       try {
- 
         await axios.get("/auth/refreshToken");
-
+        
         useAuth.getState().setAuthReady();
-      } catch {
-        router.replace("/login");
+
+        if (mode === "public") {
+          router.replace("/");
+          return;
+        }
+      } catch (error) {
+        if (mode === "private") {
+          router.replace("/login");
+          return;
+        }
       } finally {
         setLoading(false);
       }
@@ -37,7 +40,9 @@ export default function AuthProvider({
     checkAuth();
   }, [mode, router]);
 
-  if (loading) return null;
+  if (loading) {
+    return <LoadingSpinner/>;
+  }
 
   return children;
 }
