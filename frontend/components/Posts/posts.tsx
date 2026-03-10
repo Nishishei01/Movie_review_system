@@ -11,6 +11,7 @@ import { axios } from "@/utils/axios";
 import { useAuth } from "@/hooks/useAuth";
 import { usePostStore } from "@/hooks/usePostStore";
 import { useSocket } from "@/hooks/useSocket";
+import PostSelected from "./postSelected";
 
 export default function Posts() {
   const { posts, setPosts } = usePostStore();
@@ -18,7 +19,8 @@ export default function Posts() {
   
   const [openCommentPostId, setOpenCommentPostId] = useState<string | null>(null);
 
-  const [selectedPost, setSelectedPost] = useState<PostProps.PostType | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const selectedPost = posts.find(p => p.id === selectedPostId) || null;
 
   const isAuthReady = useAuth((s) => s.isAuthReady);
   
@@ -53,6 +55,10 @@ export default function Posts() {
     return <p className="mt-10 text-gray-500">Loading posts...</p>;
   }
 
+  // console.log(`selectedPost: ${selectedPost}`)
+
+  // console.log(`post: ${JSON.stringify(posts)}`)
+  
   return (
     <>
       {/* --- Main Feed --- */}
@@ -65,19 +71,22 @@ export default function Posts() {
             {/* ... (User Info ส่วนเดิม) ... */}
             <div className="flex items-center justify-between px-5 py-4">
               <div className="flex items-center gap-3">
-                <Image
+                {/* <Image
                   src="/images/user.jpg"
                   alt="User Profile"
                   width={44}
                   height={44}
                   className="rounded-full object-cover"
-                />
+                /> */}
+                <div className="w-9 h-9 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-gray-500 font-bold text-xs uppercase">
+                    {post.userPost.firstName?.[0] || 'U'}
+                </div>
                 <div>
                   <p className="font-semibold text-gray-900">
                     {post.userPost.firstName} {post.userPost.lastName}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {new Date(post.createdAt).toLocaleDateString("th-TH")}
+                    {new Date(post.createdAt).toLocaleDateString("th-TH", { year: 'numeric', month: 'long', day: 'numeric' })}
                   </p>
                 </div>
               </div>
@@ -96,7 +105,7 @@ export default function Posts() {
 
               <div 
                 className="relative w-full aspect-[16/9] cursor-pointer group"
-                onClick={() => setSelectedPost(post)}
+                onClick={() => setSelectedPostId(post.id)}
               >
                 <Image
                   src={`https://image.tmdb.org/t/p/original${post.movie.movieImage}`}
@@ -138,103 +147,7 @@ export default function Posts() {
       </div>
 
       {selectedPost && (
-        <div 
-          className="fixed inset-0 z-[9999] flex bg-black/95 animate-in fade-in duration-200"
-          onClick={() => setSelectedPost(null)}
-        >
-          <button 
-            className="absolute top-4 left-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-white/20 transition"
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedPost(null);
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
-
-          <div 
-            className="flex w-full h-full max-w-[1920px] mx-auto"
-            onClick={(e) => e.stopPropagation()} 
-          >
-            
-            <div className="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
-               <Image
-                  src={`https://image.tmdb.org/t/p/original${selectedPost.movie.movieImage}`}
-                  alt="Full view"
-                  fill
-                  className="object-contain"
-                  quality={100}
-                  priority
-               />
-            </div>
-
-            <div className="hidden md:flex w-[400px] lg:w-[500px] bg-white flex-col h-full border-l border-gray-800">
-              
-              <div className="p-4 border-b flex items-center gap-3 bg-white shrink-0">
-                <Image
-                  src="/images/user.jpg"
-                  alt="User"
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
-                <div>
-                  <p className="font-semibold text-sm">
-                    {selectedPost.userPost.firstName} {selectedPost.userPost.lastName}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(selectedPost.createdAt).toLocaleDateString("th-TH")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-              
-                <div className="mb-4">
-                   <PostContent content={selectedPost.content} />
-                </div>
-
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
-                   <p className="font-bold mb-1">🎬 {selectedPost.movie.movieName}</p>
-                   <p className="text-gray-600">{selectedPost.movie.overview}</p>
-                </div>
-
-                <hr className="my-4 border-gray-100" />
-
-                <div>
-                  <p className="text-sm font-semibold mb-3">Comments ({selectedPost.comments.length})</p>
-                  <div className="space-y-4">
-                    {selectedPost.comments.map((comment) => (
-                      <div key={comment.id} className="flex gap-3">
-                         <div className="w-8 h-8 bg-gray-200 rounded-full shrink-0 overflow-hidden">
-                         </div>
-                         <div className="flex-1">
-                            <div className="bg-gray-100 px-3 py-2 rounded-2xl inline-block">
-                               <p className="text-xs font-bold">{comment.userComment?.firstName || 'User'}</p>
-                               <p className="text-sm">{comment.comment}</p>
-                            </div>
-                            <p className="text-[10px] text-gray-400 mt-1 pl-1">• {new Date(comment.createdAt).toLocaleTimeString()}</p>
-                         </div>
-                      </div>
-                    ))}
-                    {selectedPost.comments.length === 0 && (
-                      <p className="text-gray-400 text-sm text-center py-4">No comments yet.</p>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="p-3 border-t bg-white shrink-0">
-                <div className="mb-2 px-1">
-                   <LikeButton posts={selectedPost} />
-                </div>
-                <CommentInput posts={selectedPost} />
-              </div>
-
-            </div>
-          </div>
-        </div>
+        <PostSelected post={selectedPost} onClose={() => setSelectedPostId(null)} />
       )}
     </>
   );
