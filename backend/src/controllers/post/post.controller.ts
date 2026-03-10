@@ -256,5 +256,116 @@ export default {
     } catch (error) {
       next(error)
     }
+  },
+  getPostByUserId: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let queryList: Prisma.InputJsonValue[] = []
+      const { id } = req.params
+
+      if (id) {
+        queryList.push({
+          $match: {
+            userID: { $oid: id }
+          }
+        })
+      }
+
+      queryList.push(
+        {
+            $sort: { createdAt: -1 }
+        },
+        {
+          $lookup: {
+            from: "User",
+            localField: "userID",
+            foreignField: "_id",
+            as: "userPost"
+          }
+        },
+        {
+          $unwind: {
+            path: "$userPost",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: "Movie",
+            localField: "movieID",
+            foreignField: "_id",
+            as: "movie"
+          }
+        },
+        {
+          $unwind: {
+            path: "$movie",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: "Comment",
+            let: { postId: "$_id"},
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$postID", "$$postId"] }
+                }
+              },
+              {
+                $lookup: {
+                  from: "User",
+                  localField: "userID",
+                  foreignField: "_id",
+                  as: "userComment"
+                }
+              },
+              {
+                $unwind: {
+                  path: "$userComment",
+                  preserveNullAndEmptyArrays: true
+                }
+              }
+            ],
+            as: "comments"
+          }
+        },
+        {
+          $lookup: {
+            from: "Like",
+            let: { postId: "$_id"},
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$postID", "$$postId"]}
+                }
+              },
+              {
+                $lookup: {
+                  from: "User",
+                  localField: "userID",
+                  foreignField: "_id",
+                  as: "userLike"
+                }
+              }
+            ],
+            as: "likes"
+          }
+        }
+      )
+
+      const result = await prisma.post.aggregateRaw({
+        pipeline: [
+          ...queryList,
+          ...Filter.handleQueryAggregate(req.query)
+        ]
+      })
+      
+      UtilsHelpers.convertFieldList(result)
+
+      res.status(200).json({ result })
+    } catch (error) {
+      next(error)
+    }
   }
 }

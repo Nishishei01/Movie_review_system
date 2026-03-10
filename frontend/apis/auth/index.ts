@@ -19,5 +19,9 @@ export const authApi = {
       params
     })
     return res
+  },
+  getUserById: async (id: string) => {
+    const res = await axios.get(`/auth/${id}`);
+    return res;
   }
 }

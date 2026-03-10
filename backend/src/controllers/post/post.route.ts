@@ -21,6 +21,11 @@ router.get(
   Controller.getAllPost
 )
 
+router.get(
+  '/user/:id',
+  Controller.getPostByUserId
+)
+
 router.put(
   '/:id',
   Middlewares.validatorAsyncInput(ValidatePost.validateUpdatePost),

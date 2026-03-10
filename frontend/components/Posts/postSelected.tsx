@@ -50,7 +50,7 @@ export default function PostSelected({ post, onClose }: { post: PostProps.PostTy
                       height={44}
                       className="rounded-full ring-2 ring-gray-100 shadow-sm"
                     /> */}
-                    <div className="w-9 h-9 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-gray-500 font-bold text-xs uppercase">
+                    <div className="w-9 h-9 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-white font-bold text-xs uppercase">
                         {post.userPost.firstName?.[0] || 'U'}
                     </div>
                     <div>
@@ -86,7 +86,7 @@ export default function PostSelected({ post, onClose }: { post: PostProps.PostTy
                       <div className="space-y-5">
                         {post.comments.map((comment) => (
                           <div key={comment.id} className="flex gap-3 group">
-                             <div className="w-9 h-9 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-gray-500 font-bold text-xs uppercase">
+                             <div className="w-9 h-9 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full shrink-0 overflow-hidden shadow-inner flex items-center justify-center text-white font-bold text-xs uppercase">
                                 {comment.userComment?.firstName?.[0] || 'U'}
                              </div>
                              <div className="flex-1">

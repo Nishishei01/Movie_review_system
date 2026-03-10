@@ -59,9 +59,9 @@ export function LoginLayout() {
 
   return (
     <>
-      <div className="grid grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-5xl mx-auto my-8">
         {/* Left-side */}
-        <div className="relative h-full">
+        <div className="relative hidden lg:block h-full min-h-[500px]">
           <Image
             src="/images/felipe-bustillo-4VDRCoNuvE0-unsplash.jpg"
             alt="login-image"
@@ -71,10 +71,10 @@ export function LoginLayout() {
         </div>
 
         {/* Right-side */}
-        <div className="flex items-center justify-center p-12">
-          <div className="w-full">
+        <div className="flex items-center justify-center p-8 md:p-12">
+          <div className="w-full max-w-md mx-auto">
 
-            <div className="text-center font-bold text-4xl mb-10">
+            <div className="text-center font-bold text-3xl md:text-4xl mb-8 md:mb-10">
               <h1> <span className="text-purple-700">Sign in</span> to Accounts</h1>
             </div>
 

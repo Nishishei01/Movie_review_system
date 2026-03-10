@@ -37,5 +37,10 @@ router.get(
   Controller.searchUser
 )
 
+router.get(
+  '/:id',
+  Controller.getUserById
+)
+
 export default router
 

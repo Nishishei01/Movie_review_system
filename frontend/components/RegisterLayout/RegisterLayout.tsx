@@ -60,9 +60,9 @@ export function RegisterLayout() {
 
   return (
     <>
-      <div className="grid grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto ">
+      <div className="grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-5xl mx-auto my-8">
         {/* Left-side */}
-        <div className="relative h-full">
+        <div className="relative hidden lg:block h-full min-h-[600px]">
           <Image
             src="/images/felipe-bustillo-4VDRCoNuvE0-unsplash.jpg"
             alt="login-image"
@@ -72,10 +72,10 @@ export function RegisterLayout() {
         </div>
 
         {/* Right-side */}
-        <div className="flex items-center justify-center p-12">
-          <div className="w-full">
+        <div className="flex items-center justify-center p-8 md:p-12">
+          <div className="w-full max-w-md mx-auto">
 
-            <div className="text-center font-bold text-3xl mb-10">
+            <div className="text-center font-bold text-2xl md:text-3xl mb-8 md:mb-10">
               <h1> <span className="text-purple-700">Sign up</span> to create Account</h1>
             </div>
 
@@ -124,7 +124,7 @@ export function RegisterLayout() {
                 }
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-2">
                 <div>
                 <label htmlFor="firstName" className="block mb-1.5 text-base font-medium text-gray-700">First Name</label>
                 <input 
