@@ -1,6 +1,6 @@
 "use client";
 
-import { PostProps } from "@/types";
+// import { PostProps } from "@/types";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import CommentPreview from "../comment/commentPreview";

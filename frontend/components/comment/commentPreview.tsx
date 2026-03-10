@@ -3,7 +3,7 @@
 import { PostProps } from "@/types";
 import { CommentDuration } from "@/utils/date";
 import { useState } from "react";
-import Image from 'next/image'
+// import Image from 'next/image'
 
 export default function CommentPreview({ comments }: { comments: PostProps.Comment[] }) {
   
