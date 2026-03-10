@@ -1,7 +1,7 @@
 "use client";
 
 import { PostProps } from "@/types";
-import { useState } from "react";
+// import { useState } from "react";
 import Image from 'next/image'
 import LikeButton from "../like/likeButton";
 import CommentInput from "../comment/commentInput";
