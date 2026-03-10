@@ -108,7 +108,7 @@ export default function PostCreateBar() {
           className="w-full max-w-2xl p-3 flex items-center gap-4 rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-[0_0_15px] hover:shadow-violet-700/25 transition cursor-pointer group"
         >
           <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
-             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+             <Image src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
           </div>
           
           <div className="flex-grow bg-gray-100 h-10 rounded-full flex items-center px-4 text-gray-500 group-hover:bg-gray-50 transition">
