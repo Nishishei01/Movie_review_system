@@ -34,14 +34,14 @@ export function Header() {
   }
     
   return (
-    <header className="sticky top-0 z-50 w-full pt-1">
-      <nav className="flex justify-between items-center text-center mx-45 my-0.5 rounded-4xl h-15 px-15 border-x-1 border-t-1 border-b-1 border-gray-300 shadow-xl/4 bg-white ">
-        <div className="flex-1 flex justify-start">
+    <header className="sticky top-0 z-50 w-full pt-1 px-2 md:px-0">
+      <nav className="flex justify-between items-center text-center max-w-[1400px] mx-auto my-0.5 rounded-2xl md:rounded-4xl h-14 md:h-15 px-4 md:px-8 border border-gray-300 shadow-xl/4 bg-white ">
+        <div className="flex-[0.5] md:flex-1 flex justify-start">
           <Link href='/'>
-            <h1 className="font-bold text-xl">Movie <span className="text-purple-700">Review</span></h1>
+            <h1 className="font-bold text-lg md:text-xl">Movie <span className="text-purple-700 hidden sm:inline">Review</span></h1>
           </Link>
         </div>
-        <div className="flex-1 flex justify-center">
+        <div className="flex-[2] md:flex-1 flex justify-center w-full max-w-[200px] md:max-w-none px-2 md:px-0">
             {/* <input type="text" placeholder="Search User" /> */}
             <SearchAutocomplete<AuthProps.SearchUserType>
               placeholder="Search user"
@@ -57,27 +57,33 @@ export function Header() {
               }}
             />
         </div>
-        <div className="flex-1 flex justify-end group">
-            <button className=" flex cursor-pointer items-center gap-2 text-white bg-purple-700 rounded-[10px] h-[33px] px-4">
+        <div className="flex-[0.5] md:flex-1 flex justify-end">
+          <div className="relative group flex items-center">
+            <button className="flex cursor-pointer items-center justify-center gap-0 md:gap-2 text-white bg-purple-700 rounded-[10px] h-[33px] px-2 md:px-4">
               <UserCircleIcon className="h-6 w-6 text-white" />
-              {displayName}
-              <ChevronUpIcon className="h-5 w-5 text-white rotate-180 transition-all group-hover:rotate-0" />
+              <span className="hidden md:inline">{displayName}</span>
+              <ChevronUpIcon className="hidden md:block h-5 w-5 text-white rotate-180 transition-all group-hover:rotate-0" />
             </button>
 
             {/* dropdown */}
-            <div className="absolute hidden group-hover:flex flex-col bg-white shadow-lg rounded-lg w-40 mt-8 transition-all">
+            <div className="absolute right-0 top-full hidden group-hover:flex flex-col w-40 pt-2 z-50">
+              <div className="bg-white shadow-lg rounded-xl flex flex-col overflow-hidden border border-gray-100">
                 <Link 
                   href='/profile'
-                  className="px-4 py-2 hover:bg-gray-100 text-gray-700 cursor-pointer transition rounded-lg"
+                  className="px-4 py-3 hover:bg-gray-50 text-gray-700 cursor-pointer transition text-sm font-medium"
                 >
                   Profile
                 </Link>
-                <span 
-                  className="text-center px-4 py-2 hover:bg-gray-100 text-gray-700 cursor-pointer transition rounded-lg"
-                  onClick={handleLogout}>
+                <div className="h-px bg-gray-100 w-full"></div>
+                <button 
+                  onClick={handleLogout}
+                  className="px-4 py-3 hover:bg-red-50 text-red-600 cursor-pointer transition text-sm font-medium w-full"
+                >
                   Logout
-                </span>
+                </button>
+              </div>
             </div>
+          </div>
         </div>
       </nav>
     </header>

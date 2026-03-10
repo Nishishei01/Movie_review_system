@@ -10,6 +10,7 @@ import { likeApi } from "@/apis/like";
 export default function LikeButton({posts}: {posts: PostProps.PostType} ) {
   
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const currentUserString = localStorage.getItem('user-storage');
@@ -30,9 +31,12 @@ export default function LikeButton({posts}: {posts: PostProps.PostType} ) {
   const myLike = currentUserId ? posts.likes.find((l) => l.userID === currentUserId) : null;
   const count = posts.likes.length;
 
-  const toggleLike = async () => {
-    if (!currentUserId) return;
+  const toggleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Preven trigger parent onClick if any
     
+    if (!currentUserId || loading) return;
+    
+    setLoading(true);
     try {
       if (liked && myLike) {
         await likeApi.delete(myLike.id)
@@ -41,16 +45,19 @@ export default function LikeButton({posts}: {posts: PostProps.PostType} ) {
       }
     } catch (err) {
       console.error("Like error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <button
       onClick={toggleLike}
+      disabled={loading}
       className={`
-        flex items-center gap-1 transition ${
+        flex items-center gap-1 transition-transform ${
         liked ? "text-red-500" : "text-gray-500"
-      } hover:scale-105 cursor-pointer
+      } ${loading ? "opacity-50 " : "hover:scale-105 cursor-pointer"}
       `}
     >
       {liked ? (
