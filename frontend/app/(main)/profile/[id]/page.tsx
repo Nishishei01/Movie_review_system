@@ -10,13 +10,16 @@ import LikeButton from "@/components/like/likeButton";
 import CommentPreview from "@/components/comment/commentPreview";
 import CommentInput from "@/components/comment/commentInput";
 import PostSelected from "@/components/Posts/postSelected";
+import { PostProps } from "@/types/post-type";
+import { AuthProps } from "@/types/auth-type";
+
 
 export default function ProfilePage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
   
-  const [user, setUser] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [user, setUser] = useState<AuthProps.UserProfile | null>(null);
+  const [posts, setPosts] = useState<PostProps.PostType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

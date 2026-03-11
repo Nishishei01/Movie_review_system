@@ -16,4 +16,11 @@ export namespace AuthProps {
     firstName: string
     lastName: string
   }
+  export interface UserProfile {
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    createdAt: string;
+  }
 }
