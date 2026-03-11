@@ -84,7 +84,7 @@ export function SearchAutocomplete<T>({
           setSearchValue(value)  // ใช้ค้นหา
         }}
         placeholder={placeholder}
-        className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="w-full bg-gray-100 px-3 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-600/50 text-[15px]"
       />
 
       {loading && (
@@ -94,7 +94,7 @@ export function SearchAutocomplete<T>({
       )}
 
       {open && (
-        <ul className="absolute z-[9999] w-full bg-white border rounded mt-1 max-h-60 overflow-auto shadow-lg">
+        <ul className="absolute z-[9999] w-full bg-white border border-violet-600/50 rounded mt-1 max-h-60 overflow-auto shadow-lg">
           {data.length === 0 && !loading && !error && (
             <li className="px-3 py-2 text-sm text-gray-500">
               No results

@@ -6,12 +6,12 @@ export const postApi = {
     const res = await axios.post('/post', { ...data });
     return res
   },
-  getPostByUserId: async (id: string) => {
-    const res = await axios.get(`/post/user/${id}`);
+  getPostByUserId: async (id: string, page: number = 0, rowsPerPage: number = 5) => {
+    const res = await axios.get(`/post/user/${id}?page=${page}&rowsPerPage=${rowsPerPage}`);
     return res;
   },
-  getAllPost: async () => {
-    const res = await axios.get('/post');
+  getAllPost: async (page: number = 0, rowsPerPage: number = 5) => {
+    const res = await axios.get(`/post?page=${page}&rowsPerPage=${rowsPerPage}`);
     return res;
   }
 }

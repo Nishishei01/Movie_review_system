@@ -22,6 +22,10 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<PostProps.PostType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const rowsPerPage = 5;
 
   const [openCommentPostId, setOpenCommentPostId] = useState<string | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
@@ -36,8 +40,11 @@ export default function ProfilePage() {
         setUser(userRes.data.result);
 
 
-        const postsRes = await postApi.getPostByUserId(id);
-        setPosts(postsRes.data.result || []);
+        const postsRes = await postApi.getPostByUserId(id, 0, rowsPerPage);
+        const newPosts = postsRes.data.result || [];
+        setPosts(newPosts);
+        setPage(0);
+        setHasMore(newPosts.length === rowsPerPage);
         
       } catch (err) {
         console.error("Error fetching profile data", err);
@@ -51,6 +58,32 @@ export default function ProfilePage() {
       fetchProfileData();
     }
   }, [id]);
+
+  const loadMorePosts = async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    try {
+      setIsLoadingMore(true);
+      const nextPage = page + 1;
+      const postsRes = await postApi.getPostByUserId(id, nextPage, rowsPerPage);
+      const newPosts = postsRes.data.result || [];
+      
+      if (newPosts.length > 0) {
+        const existingIds = new Set(posts.map(p => p.id));
+        const uniqueNewPosts = newPosts.filter((p: any) => !existingIds.has(p.id));
+        setPosts([...posts, ...uniqueNewPosts]);
+        setPage(nextPage);
+      }
+      
+      if (newPosts.length < rowsPerPage) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Load more posts failed", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     if (selectedPost) {
@@ -180,6 +213,23 @@ export default function ProfilePage() {
               <CommentPreview comments={post.comments || []} />
             </div>
           ))}
+        </div>
+      )}
+
+      {/* --- Load More Button --- */}
+      {posts.length > 0 && hasMore && (
+        <div className="flex justify-center my-6 pb-6 mt-6">
+          <button
+            onClick={loadMorePosts}
+            disabled={isLoadingMore}
+            className={`px-6 py-2 rounded-full font-medium transition ${
+              isLoadingMore
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-violet-100 text-violet-700 hover:bg-violet-200 hover:shadow-md"
+            }`}
+          >
+            {isLoadingMore ? "กำลังโหลด..." : "โหลดโพสต์เพิ่มเติม"}
+          </button>
         </div>
       )}
 

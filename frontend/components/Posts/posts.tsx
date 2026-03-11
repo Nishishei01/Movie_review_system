@@ -17,6 +17,10 @@ import { postApi } from "@/apis/post";
 export default function Posts() {
   const { posts, setPosts } = usePostStore();
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const rowsPerPage = 5;
   
   const [openCommentPostId, setOpenCommentPostId] = useState<string | null>(null);
 
@@ -32,8 +36,12 @@ export default function Posts() {
 
     const fetchPosts = async () => {
       try {
-        const res = await postApi.getAllPost();
-        setPosts(res.data.result);
+        setLoading(true);
+        const res = await postApi.getAllPost(0, rowsPerPage);
+        const newPosts = res.data.result || [];
+        setPosts(newPosts);
+        setPage(0);
+        setHasMore(newPosts.length === rowsPerPage);
       } catch (error) {
         console.error("Fetch posts failed", error);
       } finally {
@@ -44,6 +52,32 @@ export default function Posts() {
     fetchPosts();
   }, [isAuthReady, setPosts]);
 
+  const loadMorePosts = async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    try {
+      setIsLoadingMore(true);
+      const nextPage = page + 1;
+      const res = await postApi.getAllPost(nextPage, rowsPerPage);
+      const newPosts = res.data.result || [];
+      
+      if (newPosts.length > 0) {
+        const existingIds = new Set(posts.map((p: { id: string; }) => p.id));
+        const uniqueNewPosts = newPosts.filter((p: { id: string; }) => !existingIds.has(p.id));
+        setPosts([...posts, ...uniqueNewPosts]);
+        setPage(nextPage);
+      }
+      
+      if (newPosts.length < rowsPerPage) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Load more posts failed", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+  
   useEffect(() => {
     if (selectedPost) {
       document.body.style.overflow = 'hidden';
@@ -52,8 +86,8 @@ export default function Posts() {
     }
   }, [selectedPost]);
 
-  if (loading) {
-    return <p className="mt-10 text-gray-500">Loading posts...</p>;
+  if (loading && page === 0) {
+    return <p className="mt-10 text-gray-500 text-center">Loading posts...</p>;
   }
 
   // console.log(`selectedPost: ${selectedPost}`)
@@ -139,6 +173,23 @@ export default function Posts() {
           </div>
         ))}
       </div>
+
+      {/* --- Load More Button --- */}
+      {posts.length > 0 && hasMore && (
+        <div className="flex justify-center my-6 pb-6">
+          <button
+            onClick={loadMorePosts}
+            disabled={isLoadingMore}
+            className={`px-6 py-2 rounded-full font-medium transition ${
+              isLoadingMore
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-violet-100 text-violet-700 hover:bg-violet-200 hover:shadow-md"
+            }`}
+          >
+            {isLoadingMore ? "กำลังโหลด..." : "โหลดโพสต์เพิ่มเติม"}
+          </button>
+        </div>
+      )}
 
       {selectedPost && (
         <PostSelected post={selectedPost} onClose={() => setSelectedPostId(null)} />
