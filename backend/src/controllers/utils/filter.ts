@@ -46,14 +46,16 @@ export const Filter = {
     }
 
     const addPagination = (page: number, rowsPerPage: number) => {
-      if (page >= 0 && rowsPerPage >=0) {
-        const skip = page * rowsPerPage
+      const p = Number(page)
+      const r = Number(rowsPerPage)
+      if (p >= 0 && r >=0) {
+        const skip = p * r
         query.push(
           {
             $skip: skip > 0 ? skip : 0
           },
           {
-            $limit: rowsPerPage
+            $limit: r
           }
         )
       }

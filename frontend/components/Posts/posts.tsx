@@ -12,7 +12,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePostStore } from "@/hooks/usePostStore";
 import { useSocket } from "@/hooks/useSocket";
 import PostSelected from "./postSelected";
+import { useUser } from "@/hooks/useUser";
 import { postApi } from "@/apis/post";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 export default function Posts() {
   const { posts, setPosts } = usePostStore();
@@ -28,6 +30,7 @@ export default function Posts() {
   const selectedPost = posts.find(p => p.id === selectedPostId) || null;
 
   const isAuthReady = useAuth((s) => s.isAuthReady);
+  const { userData } = useUser();
   
   useSocket();
 
@@ -41,7 +44,13 @@ export default function Posts() {
         const newPosts = res.data.result || [];
         setPosts(newPosts);
         setPage(0);
-        setHasMore(newPosts.length === rowsPerPage);
+        
+        if (newPosts.length === rowsPerPage) {
+          const checkMoreRes = await postApi.getAllPost(1, rowsPerPage);
+          setHasMore((checkMoreRes.data.result || []).length > 0);
+        } else {
+          setHasMore(false);
+        }
       } catch (error) {
         console.error("Fetch posts failed", error);
       } finally {
@@ -66,15 +75,32 @@ export default function Posts() {
         const uniqueNewPosts = newPosts.filter((p: { id: string; }) => !existingIds.has(p.id));
         setPosts([...posts, ...uniqueNewPosts]);
         setPage(nextPage);
-      }
-      
-      if (newPosts.length < rowsPerPage) {
+
+        if (newPosts.length === rowsPerPage) {
+          const checkMoreRes = await postApi.getAllPost(nextPage + 1, rowsPerPage);
+          setHasMore((checkMoreRes.data.result || []).length > 0);
+        } else {
+          setHasMore(false);
+        }
+      } else {
         setHasMore(false);
       }
     } catch (error) {
       console.error("Load more posts failed", error);
     } finally {
       setIsLoadingMore(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้?")) return;
+
+    try {
+      await postApi.delete(postId);
+      setPosts(posts.filter(p => p.id !== postId));
+    } catch (error) {
+      console.error("Failed to delete post", error);
+      alert("เกิดข้อผิดพลาดในการลบโพสต์");
     }
   };
   
@@ -118,6 +144,18 @@ export default function Posts() {
                     </p>
                   </div>
                 </Link>
+                {userData?.id === post.userID && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePost(post.id);
+                    }} 
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition"
+                    title="ลบโพสต์"
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                )}
             </div>
 
             <div className="px-5 pb-3">
@@ -136,7 +174,11 @@ export default function Posts() {
                 onClick={() => setSelectedPostId(post.id)}
               >
                 <Image
-                  src={`https://image.tmdb.org/t/p/original${post.movie.movieImage}`}
+                  src={
+                    post.movie.movieImage.startsWith("http")
+                      ? "/images/noImage.png"
+                      : `https://image.tmdb.org/t/p/original${post.movie.movieImage}`
+                  }
                   alt={post.movie.movieName}
                   fill
                   className="object-cover group-hover:brightness-90 transition"

@@ -12,11 +12,14 @@ import CommentInput from "@/components/comment/commentInput";
 import PostSelected from "@/components/Posts/postSelected";
 import { PostProps } from "@/types/post-type";
 import { AuthProps } from "@/types/auth-type";
+import { useUser } from "@/hooks/useUser";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 
 export default function ProfilePage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
+  const { userData } = useUser();
   
   const [user, setUser] = useState<AuthProps.UserProfile | null>(null);
   const [posts, setPosts] = useState<PostProps.PostType[]>([]);
@@ -44,7 +47,13 @@ export default function ProfilePage() {
         const newPosts = postsRes.data.result || [];
         setPosts(newPosts);
         setPage(0);
-        setHasMore(newPosts.length === rowsPerPage);
+        
+        if (newPosts.length === rowsPerPage) {
+          const checkMoreRes = await postApi.getPostByUserId(id, 1, rowsPerPage);
+          setHasMore((checkMoreRes.data.result || []).length > 0);
+        } else {
+          setHasMore(false);
+        }
         
       } catch (err) {
         console.error("Error fetching profile data", err);
@@ -73,15 +82,32 @@ export default function ProfilePage() {
         const uniqueNewPosts = newPosts.filter((p: { id: string; }) => !existingIds.has(p.id));
         setPosts([...posts, ...uniqueNewPosts]);
         setPage(nextPage);
-      }
-      
-      if (newPosts.length < rowsPerPage) {
+
+        if (newPosts.length === rowsPerPage) {
+          const checkMoreRes = await postApi.getPostByUserId(id, nextPage + 1, rowsPerPage);
+          setHasMore((checkMoreRes.data.result || []).length > 0);
+        } else {
+          setHasMore(false);
+        }
+      } else {
         setHasMore(false);
       }
     } catch (err) {
       console.error("Load more posts failed", err);
     } finally {
       setIsLoadingMore(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้?")) return;
+
+    try {
+      await postApi.delete(postId);
+      setPosts(posts.filter(p => p.id !== postId));
+    } catch (err) {
+      console.error("Failed to delete post", err);
+      alert("เกิดข้อผิดพลาดในการลบโพสต์");
     }
   };
 
@@ -157,6 +183,18 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 </div>
+                {userData?.id === post.userID && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePost(post.id);
+                    }} 
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition"
+                    title="ลบโพสต์"
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                )}
               </div>
 
               <div className="px-5 pb-3">
@@ -176,7 +214,11 @@ export default function ProfilePage() {
                 >
                   {post.movie?.movieImage && (
                     <Image
-                      src={`https://image.tmdb.org/t/p/original${post.movie.movieImage}`}
+                      src={
+                        post.movie.movieImage.startsWith("http")
+                          ? "/images/noImage.png"
+                          : `https://image.tmdb.org/t/p/original${post.movie.movieImage}`
+                      }
                       alt={post.movie?.movieName || 'Movie Cover'}
                       fill
                       className="object-cover group-hover:brightness-90 transition"

@@ -31,7 +31,11 @@ export default function PostSelected({ post, onClose }: { post: PostProps.PostTy
                 
                 <div className="w-full h-[40vh] md:h-full md:flex-auto relative bg-black/5 flex items-center justify-center shrink-0 overflow-hidden transform-gpu">
                    <Image
-                      src={`https://image.tmdb.org/t/p/original${post.movie.movieImage}`}
+                      src={
+                        post.movie.movieImage.startsWith("http")
+                          ? "/images/noImage.png"
+                          : `https://image.tmdb.org/t/p/original${post.movie.movieImage}`
+                      }
                       alt="Full view"
                       fill
                       className="object-contain"
