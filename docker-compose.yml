@@ -1,7 +1,6 @@
-
 services:
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: dockerfile
     container_name: movie-review-backend
@@ -12,19 +11,24 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-  
-#   frontend:
-#     build:
-#       context: ./frontend
-#       dockerfile: dockerfile
-#     container_name: movie-review-frontend
-#     ports:
-#       - 3000:3000
-#     networks:
-#       - movie-review-network
-#     volumes:
-#       - ./frontend:/app
-#       - /app/node_modules
+  #   frontend:
+  #     build:
+  #       context: ./frontend
+  #       dockerfile: dockerfile
+  #     container_name: movie-review-frontend
+  #     ports:
+  #       - 3000:3000
+  #     networks:
+  #       - movie-review-network
+  #     volumes:
+  #       - ./frontend:/app
+  #       - /app/node_modules
 
-# networks:
-#   movie-review-network: {}
+  # redis:
+  #   image: redis:alpine
+  #   container_name: movie-review-redis
+  #   ports:
+  #     - "6379:6379"
+
+  # networks:
+  #   movie-review-network: {}

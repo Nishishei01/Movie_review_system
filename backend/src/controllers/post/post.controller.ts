@@ -6,6 +6,18 @@ import { UtilsHelpers } from "../../helpers/helper"
 import { Filter } from "../utils/filter"
 
 import { io } from "../../index"
+import { redisClient } from "../../helpers/redis"
+
+const clearPostCache = async () => {
+  try {
+    const keys = await redisClient.keys('posts:*');
+    if (keys.length > 0) {
+      await redisClient.del(keys);
+    }
+  } catch (err) {
+    console.error("Redis Cache Clear Error", err);
+  }
+}
 
 export default {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
@@ -77,6 +89,7 @@ export default {
       }
 
       io.emit("post:created", payload)
+      await clearPostCache()
       res.status(201).json({ result: payload })
     } catch (error) {
       next(error)
@@ -99,6 +112,7 @@ export default {
       })
 
       io.emit("post:updated", result)
+      await clearPostCache()
       res.status(201).json({ message: "Update successfully.", result })
     } catch (error) {
       next(error)
@@ -106,6 +120,15 @@ export default {
   },
   getAllPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const cacheKey = `posts:all:${JSON.stringify(req.query)}`;
+      const cachedPosts = await redisClient.get(cacheKey);
+
+      if (cachedPosts) {
+        console.log(`[Cache Hit] 🚀 Loading all posts from Redis!`);
+        return res.status(200).json({ result: JSON.parse(cachedPosts) });
+      }
+
+      console.log(`[Cache Miss] 🐢 Fetching all posts from Database...`);
       let queryList: Prisma.InputJsonValue[] = []
 
       queryList.push(
@@ -201,6 +224,8 @@ export default {
       
       UtilsHelpers.convertFieldList(result)
 
+      await redisClient.set(cacheKey, JSON.stringify(result), { EX: 3600 });
+
       res.status(200).json({ result })
     } catch (error) {
       next(error)
@@ -211,6 +236,15 @@ export default {
       let queryList: Prisma.InputJsonValue[] = []
       const { id } = req.params
 
+      const cacheKey = `posts:id:${id}`;
+      const cachedPost = await redisClient.get(cacheKey);
+
+      if (cachedPost) {
+        console.log(`[Cache Hit] 🚀 Loading post ${id} from Redis!`);
+        return res.status(200).json({ result: JSON.parse(cachedPost) });
+      }
+
+      console.log(`[Cache Miss] 🐢 Fetching post ${id} from Database...`);
       if (id) {
         queryList.push(
           {
@@ -237,6 +271,8 @@ export default {
 
       UtilsHelpers.convertFieldList(result)
 
+      await redisClient.set(cacheKey, JSON.stringify(result), { EX: 3600 });
+
       res.status(200).json({ result })
     } catch (error) {
       next(error)
@@ -252,6 +288,7 @@ export default {
         }
       })
 
+      await clearPostCache()
       res.status(200).json({ message: "Deleted successfully.", result })
     } catch (error) {
       next(error)
@@ -262,6 +299,15 @@ export default {
       let queryList: Prisma.InputJsonValue[] = []
       const { id } = req.params
 
+      const cacheKey = `posts:userId:${id}:${JSON.stringify(req.query)}`;
+      const cachedPosts = await redisClient.get(cacheKey);
+
+      if (cachedPosts) {
+        console.log(`[Cache Hit] 🚀 Loading user ${id} posts from Redis!`);
+        return res.status(200).json({ result: JSON.parse(cachedPosts) });
+      }
+
+      console.log(`[Cache Miss] 🐢 Fetching user ${id} posts from Database...`);
       if (id) {
         queryList.push({
           $match: {
@@ -362,6 +408,8 @@ export default {
       })
       
       UtilsHelpers.convertFieldList(result)
+
+      await redisClient.set(cacheKey, JSON.stringify(result), { EX: 3600 });
 
       res.status(200).json({ result })
     } catch (error) {
