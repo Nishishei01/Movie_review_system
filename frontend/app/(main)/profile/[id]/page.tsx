@@ -36,7 +36,7 @@ export default function ProfilePage() {
         const postsRes = await postApi.getPostByUserId(id);
         setPosts(postsRes.data.result || []);
         
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching profile data", err);
         setError("User not found or an error occurred.");
       } finally {
@@ -98,7 +98,7 @@ export default function ProfilePage() {
       
       {posts.length === 0 ? (
         <p className="text-gray-500 text-center py-10 bg-white rounded-2xl border border-gray-200">
-          This user hasn't posted anything yet.
+          This user hasn&apos;t posted anything yet.
         </p>
       ) : (
         <div className="flex flex-col items-center gap-6">
