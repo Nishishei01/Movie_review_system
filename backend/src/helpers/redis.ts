@@ -2,11 +2,12 @@ import { createClient } from 'redis';
 
 export const redisClient = createClient({
   url: process.env.REDIS_URL,
-  pingInterval: 1000 * 60 * 3, //กำหนดเวลาให้มัน ping ทุกๆ 3 นาที กันมันตัดการเชื่อมต่อกัน
+  pingInterval: 1000 * 60 * 3, // กำหนดเวลาให้มัน ping ทุกๆ 3 นาที กันมันตัดการเชื่อมต่อกัน
   socket: {
+    ...(process.env.REDIS_URL?.startsWith('rediss://') ? { tls: true, rejectUnauthorized: false } : {}),
     reconnectStrategy: (retries) => {
       console.log(`Reconnecting to Redis... Attempt ${retries}`);
-      return Math.min(retries * 1000, 5000); //ตั้งเวลาให้มัน reconnect ทุกๆ 1-5วิ
+      return Math.min(retries * 1000, 5000); // ตั้งเวลาให้มัน reconnect ทุกๆ 1-5วิ
     }
   }
 });
