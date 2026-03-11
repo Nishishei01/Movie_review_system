@@ -70,7 +70,7 @@ export default function ProfilePage() {
       
       if (newPosts.length > 0) {
         const existingIds = new Set(posts.map(p => p.id));
-        const uniqueNewPosts = newPosts.filter((p: any) => !existingIds.has(p.id));
+        const uniqueNewPosts = newPosts.filter((p: { id: string; }) => !existingIds.has(p.id));
         setPosts([...posts, ...uniqueNewPosts]);
         setPage(nextPage);
       }
