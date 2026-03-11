@@ -8,7 +8,6 @@ import CommentPreview from "../comment/commentPreview";
 import PostContent from "./postContent";
 import LikeButton from "../like/likeButton";
 import CommentInput from "../comment/commentInput";
-import { axios } from "@/utils/axios";
 import { useAuth } from "@/hooks/useAuth";
 import { usePostStore } from "@/hooks/usePostStore";
 import { useSocket } from "@/hooks/useSocket";
