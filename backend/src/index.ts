@@ -12,6 +12,7 @@ import postRoute from "./controllers/post/post.route"
 import commentRoute from "./controllers/comment/comment.route"
 import likeRoute from "./controllers/like/like.route"
 import movieRoute from "./controllers/movie/movie.route"
+import { connectRedis } from "./helpers/redis";
 
 dotenv.config();
 import http from "http";
@@ -55,6 +56,7 @@ router.use("/comment", commentRoute)
 router.use("/like", likeRoute)
 router.use("/movie", movieRoute)
 
-server.listen(port, () => {
+server.listen(port, async () => {
+  await connectRedis();
   console.log(`Server is running on http://localhost:${port}`);
 });
