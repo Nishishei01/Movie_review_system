@@ -13,5 +13,9 @@ export const postApi = {
   getAllPost: async (page: number = 0, rowsPerPage: number = 5) => {
     const res = await axios.get(`/post?page=${page}&rowsPerPage=${rowsPerPage}`);
     return res;
+  },
+  delete: async (id: string) => {
+    const res = await axios.delete(`/post/${id}`);
+    return res;
   }
 }
