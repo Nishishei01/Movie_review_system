@@ -5,6 +5,8 @@ import bodyParser from 'body-parser';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
+dotenv.config();
+
 import authRoute from "./controllers/auth/auth.route"
 import { JwtUtils } from "./controllers/auth/auth.utils";
 import ValidateAuth from "./controllers/auth/auth.validator";
@@ -14,7 +16,6 @@ import likeRoute from "./controllers/like/like.route"
 import movieRoute from "./controllers/movie/movie.route"
 import { connectRedis } from "./helpers/redis";
 
-dotenv.config();
 import http from "http";
 import { Server } from "socket.io";
 
